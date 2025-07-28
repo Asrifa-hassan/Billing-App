@@ -1,0 +1,147 @@
+.alert-box{
+    position: absolute;
+    width: 100%;
+    margin: auto;
+    top: 3%;
+    z-index: 9999;
+    justify-items: center;
+}
+.alert{
+    font-weight: 600;
+    width: 40%;
+}
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+} 
+.row{
+    height: 100vh;
+    /* overflow: hidden; */
+}
+.icon-col{
+    border:  2px solid lightgray ;
+    position: fixed;
+    height: 100vh;
+}
+.main-icon{
+    height: 20vh;
+    position: relative;
+}
+.main-icon div{
+    text-align: center;
+    font-size: 64px;
+    padding: 25px;
+}
+.sub-icon{
+    height: 60vh;
+}
+.list-group-item{
+    border: transparent !important;
+    display: flex !important;
+}
+.list-group-item:hover{
+   background-color: lightgray;
+}
+.list-group-item span {
+    padding: 5px 5px;
+    width: 35px;
+}
+.list-group-item p{
+    font-weight: 600;
+}
+.end-icon .logout_btn{
+    text-decoration: none;
+    color: #000;
+}
+.end-icon .logout_btn span{
+    padding: 5px;
+}
+.page-col{
+    background-color: white;
+    margin-left: auto;
+}
+.table-div{
+    padding: 4rem 1rem;
+}
+.page-col .else{
+    background-color: #fff;
+    height: 50vh;
+    display: flex;
+    margin: 1rem ;
+}
+.else .text-box{
+    margin: auto;
+}
+.dashboard-content .dashboard-box{
+    text-align: center;
+    height: 25vh;
+}
+.dashboard-box .box-content{
+    background-color: #fff;
+    margin: auto;
+    padding: 1rem;
+    height: 20vh;
+}
+.recent-invoice{
+    background-color: #eee;
+}
+@media (max-width: 600px) {
+
+    .icon-col{
+        height: auto !important;
+        position: fixed;
+        background-color: #fff;
+        /* flex: 2; */
+    }
+
+    .main-icon{
+        height: 7vh;
+    }
+
+    .main-icon div{
+        text-align: center;
+        font-size: 24px;
+        padding: 25px;
+    }
+
+    .sub-icon{
+        height: 3vh;
+    }
+
+    .sub-icon .list-group{
+        display: ruby-text;
+        width: inherit;
+    }
+
+    .sub-icon .list-group p{
+        display: none;
+    }
+
+    .sub-icon .list-group-item{
+        padding: 0 1.4rem !important;
+    }
+
+    
+
+
+    .sub-icon .list-group-item span{
+        width: 24px;
+    }
+
+    .end-icon{
+        font-size: 10px;
+    }
+
+    .page-col{
+        margin-top: 25vh !important;
+        /* flex: 10; */
+    }
+
+    .list-group-item ,.list-group-item h5{
+       font-size: 10px;
+    }
+
+    .alert{
+        width: 80%;
+    }
+  }

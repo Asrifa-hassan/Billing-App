@@ -1,0 +1,122 @@
+.invoice{
+    display: flex;
+    flex-direction: column;
+    height: auto; /* or remove this if needed */
+    min-height: 50vh;
+    background-color: #fff;
+    padding: 2rem;
+    margin: 2rem;
+}
+
+.top-header{
+    display:flex;
+    justify-content:space-between;
+}
+.header-hr{
+    border:1px solid #000;
+    opacity:1;
+    margin-top:0px !important;
+    width: 80%;
+}
+.content-bill-to{
+    line-height:0.5rem;
+}
+.msg{
+    text-align:center;
+}
+.invoice-table{
+    border-top:2px solid #000;
+
+}
+.table-head{
+    border-bottom:2px solid #000;
+}
+.table-body{
+    border-bottom:2px solid #000;
+}
+.bill-to,
+.sent-by,
+.total-details{
+    width:50%;
+}
+.footer-last-tr td {
+    border-bottom: 2px solid #000;
+    border-top: 2px solid #000;
+}
+.table-foot .footer-text{
+    text-align:right;
+}
+.header-left .btn{
+    justify-content:space-between;
+}
+
+.scroll-table  {
+      display: block;
+      max-height: 250px; /* Adjust height as needed */
+      overflow-y: auto;
+}
+.scroll-table thead, .scroll-table  tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed; /* Ensures columns align */
+}
+
+@media (max-width: 600px) {
+    .p-4 {
+        padding: 0.5rem !important;
+    }
+    .invoice{
+        font-size:9px;
+    }
+    .invoice h6{
+        font-size:11px;
+    }
+    .view-page{
+        margin-bottom:10vh;
+    }
+    .list-group {
+        padding-left:0px;
+    }
+    .total-invoice-details .left-div{
+        text-align: right;
+        float: right;
+    }
+    .total-invoice-details .left-div div{
+        display: block;
+    }
+}
+
+
+/* create_invoice.html */
+.page-col{
+    min-height: 100vh;
+}
+
+.new-invoice{
+   overflow: auto;
+}
+
+.customer-details,
+.product-details {
+    border: 2px solid #999;
+}
+
+.row{
+    height: auto !important;
+}
+
+.total-invoice-details .right-div{
+    text-align: right;
+    float: right;
+}
+
+.total-invoice-details .left-div label{
+    text-align: end;
+}
+
+
+
+.new-customer-div input,
+.new-customer-div textarea{
+    width: 100%;
+}

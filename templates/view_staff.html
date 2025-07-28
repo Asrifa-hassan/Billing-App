@@ -1,0 +1,84 @@
+{% extends 'navbar.html' %}
+{% load static %}
+{% block title %}Staff Profile{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+<style>
+    .profile-card {
+        max-width: 700px;
+        margin: 30px auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        padding: 20px;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(10px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+    .profile-header img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #f0f0f0;
+    }
+    .profile-header h3 {
+        margin: 0;
+        font-weight: 600;
+    }
+    .profile-details {
+        margin-top: 20px;
+        font-size: 15px;
+    }
+    .profile-details p strong {
+        color: #345578;
+    }
+    .btn-back {
+        display: inline-block;
+        margin-top: 15px;
+        background: #345578;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background 0.3s ease;
+    }
+    .btn-back:hover {
+        background: #223b56;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="profile-card">
+    <div class="profile-header">
+        {% if user_profile.image %}
+        <img src="{{ user_profile.image.url }}" alt="Profile Image">
+        {% else %}
+        <img src="{% static 'images/user.png' %}" alt="Default Image">
+        {% endif %}
+        <div>
+            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+            <p>{{ user.email }}</p>
+        </div>
+    </div>
+    <div class="profile-details">
+        <p><strong>ID:</strong> {{ user.id }}</p>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Joined:</strong> {{ user.date_joined }}</p>
+        <p><strong>Last Login:</strong> {{ user.last_login }}</p>
+        {% if user_profile.phone %}<p><strong>Phone:</strong> {{ user_profile.phone }}</p>{% endif %}
+        {% if user_profile.address %}<p><strong>Address:</strong> {{ user_profile.address }}</p>{% endif %}
+    </div>
+    <a href="{% url 'staff' %}" class="btn-back">← Back to Staff</a>
+</div>
+{% endblock %}

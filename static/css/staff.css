@@ -1,0 +1,53 @@
+.content{
+    text-align: left;
+    height: 100vh;
+    overflow: auto !important;
+    background-color: lightgray;
+}
+
+.content .box{
+    margin: 2rem 0;
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.login_form label{
+    font-size: 18px;
+    font-weight: 500;
+}
+.login_form button{
+    width: 100%;
+    border: 2ps solid ;
+    background-color: lightgray !important;
+    border: none;
+    color: #000;
+    font-weight: 600;
+}
+
+.text{
+    text-align: right;
+    padding: 5px;
+}
+
+.content .box{
+    position: relative;
+}
+
+.eye_icon{
+    position: absolute;
+    right: 9%;
+}
+
+.eye_icon1{
+    bottom: 38%;
+}
+
+.eye_icon2{
+    bottom: 23%;
+}
+
+.eye_icon3{
+    bottom: 4.5%;
+    right: 5%;
+
+}

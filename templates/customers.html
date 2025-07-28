@@ -1,0 +1,67 @@
+{% extends 'navbar.html' %}
+{% load static %}
+{% block title %}Customers List{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+{% endblock %}
+{% block content %}
+<div class="col-lg-10 col-md-9 col-sm-9 page-col p-4">
+   <div class="container mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-semibold">👥 Customers List</h3>
+        <form action="{% url 'customers' %}" method="get" class="d-flex">
+          {% csrf_token %}
+          <input type="text" class="form-control me-2" name="search" style="width: 250px;" placeholder="🔍 Search here..." autocomplete="off">
+          <button type="submit" class="btn btn-dark btn-sm px-4">Search</button>
+        </form>
+      </div>
+      {% if customers %}
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Customer ID</th>
+                <th scope="col">Fullname</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Address</th>
+                <th scope="col">Wallet</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for customer in customers %}
+              <tr>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.fullname }}</td>
+                <td>+91 {{ customer.phone }}</td>
+                <td>{{ customer.address }}</td>
+                <td>
+                  {% if customer.wallet < 0 %}
+                    <span class="text-danger fw-bold">₹{{ customer.wallet }}</span>
+                  {% else %}
+                    <span class="text-success">₹{{ customer.wallet }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if customer.wallet < 0 %}
+                  <a href="{% url 'edit_wallet' customer.id %}"
+                     class="btn btn-outline-primary btn-sm">Edit</a>
+                  {% else %}
+                  <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="alert alert-warning text-center mt-4" role="alert">
+        🚫 No Customer Found!
+      </div>
+    {% endif %}
+   </div>
+</div>
+{% endblock %}

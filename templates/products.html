@@ -1,0 +1,78 @@
+{% extends 'navbar.html' %}
+{% load static %}
+{% block title %}Products List{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+{% endblock %}
+{% block content %}
+<div class="col-lg-10 col-md-9 col-sm-9 page-col">
+   <h2 class="p-4">📦 Products List</h2>
+   <div class="add-product">
+    <div class="row" style="height: auto;">
+        <div class="col-lg-6">
+          <div class="search-div p-4">
+                <div class="search-content">
+                  <form action="{% url 'products_list' %}" method="get" style="width: 100%;">
+                    {% csrf_token %}
+                    <label for="product-search" class="visually-hidden">Search Product</label>
+                    <input type="text" id="product-search" class="search-input" name="search" style="width:60%; height: 42px;" placeholder="🔍 Search product..." autocomplete="off">
+                    <button type="submit" class="btn btn-product btn-sm" style="width: 16%; margin-top: -9px; height: 42px; color: black;">Search</button>
+                  </form>
+                </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="button p-4" style="float: right;">
+              <a href="{% url 'add_product' %}" class="btn text-white" style="background-color: #345578; border-radius: 8px; padding: 8px 16px; font-size: 13px;"> Add Product</a>
+          </div>
+        </div>
+    </div>
+   </div>
+   {% if products %}
+   <div class="table-div">
+    <div class="table-responsive" >
+      <table class="table table-hover table-bordered">
+          <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">ID</th>
+                <th scope="col">Image</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Category</th>
+                <th scope="col">Stock</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody class="table-group-divider">
+              {% for product in products %}
+              <tr>
+                  <td class="text-nowrap">{{ forloop.counter }}</td>
+                  <td class="text-nowrap">{{ product.product_id }}</td>
+                  <td class="text-nowrap">{% if product.image %}<img src="{{ product.image.url }}" alt="">{% else%}No image{% endif %}</td>
+                  <td class="text-nowrap">{{ product.name }}</td>
+                  <td class="text-nowrap">₹{{ product.price }}</td>
+                  <td class="text-nowrap">{{ product.category }}</td>
+                  <td class="text-nowrap">
+                    {% if product.stock <= 0 %}
+                      <span style="color: red;">Out of Stock</span>
+                    {% else %}
+                        {{ product.stock }}
+                    {% endif %}
+                  </td>
+                  <td class="text-nowrap"><a href="{% url 'product_view' product.id %}" class="btn btn-product">view</a></td>
+              </tr>
+             {% endfor %}
+            </tbody>
+      </table>
+     </div>
+   </div>
+   {% else %}
+    <div class="else">
+        <div class="p-4 text-center text-box">
+        <h4>No Product found!</h4>
+        </div>
+    </div>
+   {% endif %}
+</div>
+{% endblock %}

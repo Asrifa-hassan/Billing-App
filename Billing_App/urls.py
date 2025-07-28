@@ -1,0 +1,26 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+        path('', views.index, name='index'),
+        path('login_page/', views.login_page, name='login_page'),
+        path('logout_page/', views.logout_page, name='logout_page'),
+        path('register/', views.register, name='register'),
+        path('forgot_password/', views.forgot_password, name='forgot_password'),
+        path('dashboard/', views.dashboard, name='dashboard'),
+        path('staff', views.staff, name='staff'),
+        path('activate_staff/<int:id>/', views.activate_staff, name='activate_staff'),
+        path('add_staff/', views.add_staff, name='add_staff'),
+        path('update_staff/<int:id>/', views.update_staff, name='update_staff'),
+        path('delete_staff/<int:id>/', views.delete_staff, name='delete_staff'),
+        path('view_staff/<int:id>/', views.view_staff, name='view_staff'),
+        path('products', views.products_list, name="products_list"),
+        path('view/<int:id>/', views.product_view, name="product_view"),
+        path('add_product/', views.add_product, name="add_product"),
+        path('update_product/<int:id>/', views.update_product, name="update_product"),
+        path('del_product/<int:id>/', views.del_product, name="del_product"),
+        path('invoice', views.invoice, name='invoice'),
+        path('customers', views.customers, name="customers"),
+        path('new_customer/', views.new_customer, name="new_customer"),
+        path('search_customer', views.search_customer, name="search_customer"),
+    ]

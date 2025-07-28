@@ -1,0 +1,55 @@
+{% extends 'navbar.html' %}
+{% load static %}
+{% block title %}Update Product{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+{% endblock %}
+{% block content %}
+<div class="col-lg-10 col-md-9 col-sm-9 page-col">
+   <div class="container mt-5" style="max-width: 600px;">
+      <h3 class="text-center mb-4 fw-bold">Update Product</h3>
+      <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded-4 shadow-sm">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Product ID *</label>
+          <input type="text" class="form-control border-0 border-bottom rounded-0 shadow-none" value="{{ product.product_id }}" disabled>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Name *</label>
+          <input type="text" name="name" class="form-control border-0 border-bottom rounded-0 shadow-none" value="{{ product.name }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control border-0 border-bottom rounded-0 shadow-none" rows="3">{{ product.description }}</textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Category </label>
+          <input type="text" name="category" class="form-control border-0 border-bottom rounded-0 shadow-none" value="{{ product.category }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Stock *</label>
+          <input type="number" name="stock" class="form-control border-0 border-bottom rounded-0 shadow-none" value="{{ product.stock }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Price *</label>
+          <input type="number" name="price" class="form-control border-0 border-bottom rounded-0 shadow-none" value="{{ product.price }}" required>
+        </div>
+        <div class="mb-3 text-center">
+          <label class="form-label d-block">Current Image</label>
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="Product Image" class="rounded mb-2 shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+          {% else %}
+            <p class="text-muted">No image available</p>
+          {% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Upload New Image</label>
+          <input type="file" name="image" class="form-control border-0">
+        </div>
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-dark px-5 py-2 rounded-pill shadow-sm">Update</button>
+        </div>
+      </form>
+   </div>
+</div>
+{% endblock %}

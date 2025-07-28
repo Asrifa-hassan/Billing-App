@@ -1,0 +1,57 @@
+{% extends 'navbar.html' %}
+{% load static %}
+{% block title %}View Product{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+{% endblock %}
+{% block content %}
+<div class="col-lg-10 col-md-9 col-sm-9 page-col">
+   <div class="container mt-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">Product Details</h3>
+        <a href="{% url 'products_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+      </div>
+      {% if product %}
+      <div class="card shadow-sm border-0">
+        <div class="row g-0">
+          <!-- Product Image -->
+          <div class="col-md-4">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="Product Image">
+            {% else %}
+              <img src="{% static '/img/default.jpg' %}" class="img-fluid rounded-start" alt="Default Image">
+            {% endif %}
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title fw-semibold">{{ product.name }}</h5>
+              <p class="text-muted mb-1"><strong>ID:</strong> {{ product.product_id }}</p>
+              <p class="text-muted mb-1"><strong>Category:</strong> {{ product.category }}</p>
+              <p class="mb-2"><strong>Description:</strong> {{ product.description }}</p>
+              <h6 class="text-primary mb-2">Price: ₹{{ product.price }}</h6>
+              <p>
+                <strong>Stock:</strong>
+                {% if product.stock <= 0 %}
+                  <span class="badge bg-danger">Out of Stock</span>
+                {% else %}
+                  <span class="badge bg-success">{{ product.stock }} Available</span>
+                {% endif %}
+              </p>
+              <small class="text-muted d-block mt-2">
+                Created: {{ product.created_at }} <br>
+                Updated: {{ product.updated_at }}
+              </small>
+              <div class="mt-4">
+                <a href="{% url 'update_product' product.id %}" class="btn btn-primary me-2">Update</a>
+                <a href="{% url 'del_product' product.id %}"
+                   onclick="return confirm('Are you sure you want to delete this product?');"
+                   class="btn btn-outline-danger">Delete</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+   </div>
+</div>
+{% endblock %}

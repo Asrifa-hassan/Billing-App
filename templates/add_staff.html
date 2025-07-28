@@ -1,0 +1,65 @@
+{% extends 'navbar.html' %}
+{% load static %}
+{% block title %}Add Staff{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+{% endblock %}
+{% block content %}
+<div class="col-lg-10 col-md-9 col-sm-9 page-col">
+    <div class="add-product-content">
+       <div class="container mt-5">
+          <div class="card shadow-lg border-0">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Add Staff</h2>
+                <a href="{% url 'staff' %}" class="btn btn-outline-secondary">&laquo; Back</a>
+              </div>
+              <form method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-4">
+                  <div class="col-lg-6">
+                    <div>
+                      <label for="f_name" class="form-label">First Name *</label>
+                      <input type="text" class="form-control" id="f_name" name="f_name" required>
+                    </div>
+                    <div>
+                      <label for="email" class="form-label mt-3">Email *</label>
+                      <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div>
+                      <label for="password" class="form-label mt-3">Password *</label>
+                      <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div>
+                      <label for="image" class="form-label mt-3">Image</label>
+                      <input type="file" class="form-control" id="image" name="image">
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div>
+                      <label for="l_name" class="form-label">Last Name</label>
+                      <input type="text" class="form-control" id="l_name" name="l_name">
+                    </div>
+                    <div class="mt-3">
+                      <label for="phone" class="form-label">Phone Number</label>
+                      <div class="input-group">
+                        <span class="input-group-text">+91</span>
+                        <input type="tel" id="phone" name="phone" class="form-control" minlength="10" maxlength="10" pattern="\d{10}">
+                      </div>
+                    </div>
+                    <div class="mt-3">
+                      <label for="address" class="form-label">Address</label>
+                      <textarea name="address" id="address" class="form-control" rows="3"></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-end mt-4">
+                  <button type="submit" class="btn btn-primary px-4 py-2">Submit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+       </div>
+    </div>
+</div>
+{% endblock %}
