@@ -1,0 +1,98 @@
+{% extends 'navbar.html' %}
+{% load static %}
+{% block title %}View Invoice{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/invoice.css' %}">
+{% endblock %}
+{% block content %}
+<div class="col-lg-10 col-md-9 col-sm-9 page-col">
+   <section class="view-page">
+    <h2>Invoice Details</h2>
+    <h4 class="back"><a href="{% url 'invoices' %}">← Back</a></h4>
+    <div class="invoice p-4 shadow-sm bg-white rounded">
+        <div class="invoice-content">
+            <div class="d-flex justify-content-between">
+                <h1>INVOICE</h1>
+                <div>
+                    <p><strong>Invoice no:</strong> #INV{{ invoice.id }}</p>
+                    <p><strong>Date:</strong> {{ invoice.date|date:"d-m-Y" }}</p>
+                    <p><strong>Time:</strong> {{ invoice.date|time:"h:i A" }}</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <h6>Billed To</h6>
+                    <p>{{ invoice.customer.fullname }}</p>
+                    <p>{{ invoice.customer.address }}</p>
+                    <p>+91 {{ invoice.customer.phone }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Sent By</h6>
+                    <p>{% if request.user.is_superuser %}Admin{% else %}{{ invoice.staff.first_name }} {{ invoice.staff.last_name }}{% endif %}</p>
+                </div>
+            </div>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Item</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in invoice_items %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.product.name }}</td>
+                        <td class="text-end">{{ item.quantity }}</td>
+                        <td class="text-end">{{ item.price }}</td>
+                        <td class="text-end">{{ item.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end">Total</td>
+                        <td class="text-end">{{ invoice.total }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end">GST ({{ invoice.gst_percentage }}%)</td>
+                        <td class="text-end">{{ invoice.gst }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end fw-bold">Grand Total</td>
+                        <td class="text-end fw-bold">{{ invoice.grand_total }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end">Amount Paid</td>
+                        <td class="text-end">{{ invoice.amount_paid }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end">Due</td>
+                        <td class="text-end">{{ due|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="text-end">Balance</td>
+                        <td class="text-end">{{ balance|floatformat:2 }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+            <div class="text-center mt-3">
+                <p>Thanks for your shopping!!</p>
+                <a href="{% url 'invoice_pdf' invoice.id %}" class="btn btn-primary">
+                    <i class="fa-solid fa-download"></i> Download PDF
+                </a>
+            </div>
+        </div>
+    </div>
+   </section>
+</div>
+{% endblock %}

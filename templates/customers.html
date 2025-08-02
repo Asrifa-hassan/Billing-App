@@ -5,17 +5,17 @@
 <link rel="stylesheet" href="{% static 'css/product.css' %}">
 {% endblock %}
 {% block content %}
-<div class="col-lg-10 col-md-9 col-sm-9 page-col p-4">
+<div class="col-lg-10 col-md-9 col-sm-9 page-col">
+  <h2 class="p-4">👥 Customers List</h2>
    <div class="container mt-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-semibold">👥 Customers List</h3>
         <form action="{% url 'customers' %}" method="get" class="d-flex">
-          {% csrf_token %}
-          <input type="text" class="form-control me-2" name="search" style="width: 250px;" placeholder="🔍 Search here..." autocomplete="off">
-          <button type="submit" class="btn btn-dark btn-sm px-4">Search</button>
+          <label for="customer-search" class="visually-hidden">Search</label>
+          <input type="text" id="customer-search" class="search-input" name="search" style="width:80%; height: 42px;" placeholder="🔍 Search here..." autocomplete="off">
+          <button type="submit" class="btn btn-product btn-sm" style="width: 26%; margin-top:0; height: 42px; color: black;">Search</button>
         </form>
       </div>
-      {% if customers %}
+      {% if customer %}
       <div class="card shadow-sm border-0 rounded-3">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
@@ -26,32 +26,21 @@
                 <th scope="col">Phone</th>
                 <th scope="col">Address</th>
                 <th scope="col">Wallet</th>
-                <th scope="col">Action</th>
+                <th scope="col"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="table-group-divider">
               {% for customer in customers %}
-              <tr>
-                <td>{{ customer.id }}</td>
-                <td>{{ customer.fullname }}</td>
-                <td>+91 {{ customer.phone }}</td>
-                <td>{{ customer.address }}</td>
-                <td>
-                  {% if customer.wallet < 0 %}
+                <tr>
+                  <td>{{ customer.id }}</td>
+                  <td>{{ customer.fullname }}</td>
+                  <td>+91 {{ customer.phone }}</td>
+                  <td>{{ customer.address }}</td>
+                  <td>
                     <span class="text-danger fw-bold">₹{{ customer.wallet }}</span>
-                  {% else %}
-                    <span class="text-success">₹{{ customer.wallet }}</span>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if customer.wallet < 0 %}
-                  <a href="{% url 'edit_wallet' customer.id %}"
-                     class="btn btn-outline-primary btn-sm">Edit</a>
-                  {% else %}
-                  <span class="text-muted">—</span>
-                  {% endif %}
-                </td>
-              </tr>
+                  </td>
+                  <td>{% if customer.wallet < 0 %}<a href="{% url 'edit_wallet' customer.id %}" class="btn btn-outline-primary btn-sm">Edit</a>{% endif %}</td>
+                </tr>
               {% endfor %}
             </tbody>
           </table>
@@ -61,7 +50,7 @@
       <div class="alert alert-warning text-center mt-4" role="alert">
         🚫 No Customer Found!
       </div>
-    {% endif %}
    </div>
+  {% endif %}
 </div>
 {% endblock %}

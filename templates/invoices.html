@@ -1,0 +1,98 @@
+{% extends 'navbar.html' %}
+{% load static %}
+{% block title %}Invoice List{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="{% static 'css/invoice.css' %}">
+<style>
+    .page-col {
+        padding-top: 48px;
+    }
+    .invoice-header {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    }
+    .btn-new-bill {
+        background-color: #1d4876; color: white; border-radius: 50px;
+        padding: 8px 20px; font-weight: 600; transition: 0.3s ease;
+    }
+    .btn-new-bill:hover { background-color: #163659; }
+    .search-card { background: #f8f9fa; border-radius: 15px; }
+    .table { border-radius: 10px; overflow: hidden; }
+    .table thead { background-color: #f1f3f5; }
+    .table-hover tbody tr:hover { background-color: #f8fbff; }
+    .btn-product {
+        background-color: #1d4876; color: #fff; border-radius: 20px;
+        font-size: 14px; padding: 4px 12px; transition: 0.3s ease;
+    }
+    .btn-product:hover { background-color: #163659; }
+    .text-success.fw-bold, .text-danger.fw-bold { padding: 5px 10px; border-radius: 12px; }
+    .text-success.fw-bold { background-color: #e8f7ee; }
+    .text-danger.fw-bold { background-color: #fde8e8; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="col-lg-10 col-md-9 col-sm-9 page-col">
+    <div class="invoice-header">
+        <h3 class="fw-bold">📄 Invoice List</h3>
+        <a href="{% url 'create_invoice' %}" class="btn btn-new-bill shadow-sm">Add New</a>
+    </div>
+    <div class="card shadow-sm border-0 p-3 mb-3 search-card">
+        <form action="{% url 'invoices' %}" method="get" class="row g-2">
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="search" placeholder="🔍 Search invoice..." autocomplete="off">
+            </div>
+            <div class="col-md-4">
+                <input type="date" name="date" class="form-control">
+            </div>
+            <div class="col-md-3 d-grid">
+                <button type="submit" class="btn btn-primary" style="border-radius:50px;">Search</button>
+            </div>
+        </form>
+    </div>
+
+    {% if invoices %}
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Invoice No</th>
+                        <th>Customer</th>
+                        <th>Staff</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>#INV{{ invoice.id }}</td>
+                        <td>{{ invoice.customer.fullname }}</td>
+                        <td>{% if not invoice.staff.first_name %}Admin{% else %}{{ invoice.staff.first_name }} {{ invoice.staff.last_name }}{% endif %}</td>
+                        <td>{{ invoice.date|date:"d-m-Y" }}</td>
+                        <td>{{ invoice.grand_total }}</td>
+                        <td>
+                            {% if invoice.amount_paid >= invoice.grand_total %}
+                                <span class="text-success fw-bold">Fully Paid</span>
+                            {% else %}
+                                <span class="text-danger fw-bold">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="{% url 'invoice_view' invoice.id %}" class="btn btn-product">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning text-center mt-4 rounded-pill shadow-sm">
+        🚫 No Invoice Found!
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

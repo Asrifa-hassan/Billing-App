@@ -30,9 +30,9 @@
    </div>
    {% if products %}
    <div class="table-div">
-    <div class="table-responsive" >
-      <table class="table table-hover table-bordered">
-          <thead>
+     <div class="table-responsive" >
+        <table class="table table-hover table-bordered">
+           <thead>
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">ID</th>
@@ -43,8 +43,8 @@
                 <th scope="col">Stock</th>
                 <th scope="col"></th>
               </tr>
-            </thead>
-            <tbody class="table-group-divider">
+           </thead>
+           <tbody class="table-group-divider">
               {% for product in products %}
               <tr>
                   <td class="text-nowrap">{{ forloop.counter }}</td>
@@ -63,8 +63,8 @@
                   <td class="text-nowrap"><a href="{% url 'product_view' product.id %}" class="btn btn-product">view</a></td>
               </tr>
              {% endfor %}
-            </tbody>
-      </table>
+           </tbody>
+       </table>
      </div>
    </div>
    {% else %}
