@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout
 from .models import Customer, Product, Cart, CartItem, InvoiceItem
 from decimal import Decimal
+from django.views.decorators.http import require_POST
 from .models import Invoice
 from django.db.models import CharField
 from django.views.decorators.csrf import csrf_exempt
@@ -94,42 +95,22 @@ def forgot_password(request):
 
 @login_required
 def dashboard(request):
-    invoices = Invoice.objects.count()
-    customers = Customer.objects.count()
-    products_count = Product.objects.count()
-    products_lt10 = Product.objects.filter(stock__lt=5)
-    staffs = User.objects.filter(is_staff=True, is_superuser=False).count()
+    invoices=Invoice.objects.all().count()
+    customers=Customer.objects.all().count()
+    products_count=Product.objects.all().count()
+    products_lt10=Product.objects.filter(stock__lt=5)
+    staffs=User.objects.filter(is_staff=True,is_superuser=False).count()
 
-    # ✅ Fetch latest 5 invoices (not only today)
-    recent_invoice = Invoice.objects.all().order_by('-date')[:5]
-
-    total_invoice_amount = Invoice.objects.aggregate(
-        total_sum=Sum('grand_total')
-    )['total_sum'] or 0.00
-
-    total_amount_paid = Invoice.objects.aggregate(
-        total_sum=Sum('amount_paid')
-    )['total_sum'] or 0.00
-
-    # ✅ Calculate total amount due from invoices (not wallet)
-    total_amount_due = Invoice.objects.aggregate(
-        total_sum=Sum('amount_due')
-    )['total_sum'] or 0.00
+    today = timezone.now().date()
+    recent_invoice=Invoice.objects.filter(date__date=today).order_by('-id')
+    total_invoice_amount=Invoice.objects.all().aggregate(total_sum=(Sum('grand_total')))['total_sum'] or 0.00
+    total_amount_paid=Invoice.objects.all().aggregate(total_sum=(Sum('amount_paid')))['total_sum'] or 0.00
+    total_amount_due = Customer.objects.filter(wallet__lt=0).aggregate(total_sum=Sum('wallet'))['total_sum'] or 0.0
+    total_amount_due = abs(total_amount_due)
+    print("due amount",total_amount_due)
 
     stocks = Product.objects.filter(stock__gt=0).count()
-
-    return render(request, 'dashboard.html', {
-        "invoices": invoices,
-        "customers": customers,
-        "products_count": products_count,
-        "products_lt10": products_lt10,
-        "staffs": staffs,
-        "recent_invoice": recent_invoice,
-        "total_invoice_amount": total_invoice_amount,
-        "total_amount_paid": total_amount_paid,
-        "total_amount_due": total_amount_due,
-        "stocks": stocks,
-    })
+    return render(request,'dashboard.html',locals())
 
 
 def error_page(request,exception):
@@ -418,226 +399,230 @@ def search_product(request):
 
 
 @login_required
+@require_POST
 def add_to_cart(request, id):
     phone = request.session.get('phone')
     if not phone:
-        messages.error(request, "Customer phone number missing in session.")
-        return redirect('create_invoice')
+        return JsonResponse({"success": False, "message": "Customer not selected"}, status=400)
 
     customer = Customer.objects.filter(phone=phone).first()
-    if not customer:
-        messages.error(request, "Customer not found.")
-        return redirect('create_invoice')
+    customer = get_object_or_404(Customer, phone=phone)
+    product = get_object_or_404(Product, id=id)
 
     # ✅ Ensure Cart exists
     cart, created = Cart.objects.get_or_create(
         customer=customer,
         defaults={
-            'gst_percentage': Decimal('2.00'),  # or your default GST
-            'total': Decimal('0.00'),
-            'gst': Decimal('0.00'),
-            'grand_total': Decimal('0.00'),
-            'amount_paid': Decimal('0.00')
+          'gst_percentage': Decimal('2.00'),
+          'total': Decimal('0.00'),
+          'gst': Decimal('0.00'),
+          'grand_total': Decimal('0.00'),
+          'amount_paid': Decimal('0.00')
         }
     )
 
-    product = get_object_or_404(Product, id=id)
-
-    # ✅ Get or create CartItem
+    # ✅ Check stock before adding
     cart_item, created = CartItem.objects.get_or_create(
-        cart=cart,
-        product=product,
-        defaults={
-            'quantity': 1,
-            'sub_total': product.price
-        }
+      cart=cart,
+      product=product,
+      defaults={
+        'quantity': 1,
+        'sub_total': product.price  # Ensure `price` is Decimal in model
+      }
     )
-
-    print("Adding product:", product.name)
 
     if not created:
-        if cart_item.quantity < product.stock:
-            cart_item.quantity += 1
-            cart_item.sub_total = product.price * cart_item.quantity
-            cart_item.save()
-        else:
-            messages.warning(request, f"Only {product.stock} items available.")
-            return redirect("create_invoice")
+        if cart_item.quantity + 1 > product.stock:
+            return JsonResponse({
+                "success": False,
+                "message": f"Only {product.stock} items available."
+            }, status=400)
+
+        cart_item.quantity += 1
+        cart_item.sub_total = product.price * cart_item.quantity
+        cart_item.save()
 
     # ✅ Update Cart totals
-    total = sum(item.sub_total for item in CartItem.objects.filter(cart=cart))
-    gst = (total * cart.gst_percentage) / Decimal(100)
 
+    total = sum(Decimal(item.sub_total) for item in CartItem.objects.filter(cart=cart))
+    gst = (total * cart.gst_percentage) / Decimal('100')
     cart.total = total
     cart.gst = gst
     cart.grand_total = total + gst
     cart.save()
 
-    return redirect("create_invoice")
+    print("Session Phone:", request.session.get("phone"))
+
+    return JsonResponse({"success": True, "message": f"{product.name} added successfully."})
+
 
 # ---------------- Create Invoice ----------------
 @login_required
 def create_invoice(request):
-    # ✅ Store selected customer in session (AJAX)
-    if request.method == "POST" and request.content_type == "application/json":
-        import json
-        data = json.loads(request.body)
-        phone = data.get("phone")
-        if phone:
-            request.session["phone"] = phone
-            return redirect("create_invoice")
-
-    # ✅ Get customer and cart
-    phone = request.session.get("phone")
-    customer = None
-    cart = None
-    due_amount = balance = Decimal(0)
-
+  if request.method == "POST" and request.content_type == "application/json":
+    data = json.loads(request.body)
+    phone = data.get("phone")
     if phone:
-        customer = Customer.objects.filter(phone=phone).first()
-        if customer:
-            cart, _ = Cart.objects.get_or_create(customer=customer)
-            paid = cart.amount_paid or Decimal(0)
-            due_amount = max(cart.grand_total - paid, Decimal(0))
-            balance = max(paid - cart.grand_total, Decimal(0))
+      request.session["phone"] = phone
+      return redirect("create_invoice")
 
-    # ✅ Handle POST actions
-    if request.method == "POST":
-        action = request.POST.get("action")
+  # ✅ Get customer and cart
+  phone = request.session.get("phone")
+  customer = None
+  cart = None
+  due_amount = balance = Decimal(0)
 
-        if action == "update_quantity":
-            item_id = int(request.POST.get("item_id"))
-            quantity = int(request.POST.get("quantity"))
-            cart_item = get_object_or_404(CartItem, id=item_id)
-            product_stock = int(cart_item.product.stock)
+  if phone:
+    customer = Customer.objects.filter(phone=phone).first()
+    if customer:
+      cart, _ = Cart.objects.get_or_create(customer=customer)
+      paid = Decimal(cart.amount_paid or 0)
+      due_amount = max(Decimal(cart.grand_total) - paid, Decimal(0))
+      balance = max(paid - Decimal(cart.grand_total), Decimal(0))
 
-            if 1 <= quantity <= product_stock:
-                update_cart_quantity(cart, cart_item, quantity)
-            else:
-                adjust_quantity_with_stock(cart, cart_item, product_stock)
+  # ✅ Handle POST actions
+  if request.method == "POST":
+    action = request.POST.get("action")
 
-            return redirect("create_invoice")
+    if action == "update_quantity":
+      item_id = int(request.POST.get("item_id"))
+      quantity = int(request.POST.get("quantity"))
+      cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
+      product_stock = int(cart_item.product.stock)
 
-        elif action == "remove_product":
-            item_id = int(request.POST.get("product_id"))
-            cart_item = get_object_or_404(CartItem, id=item_id)
-            cart.total -= cart_item.sub_total
-            cart_item.delete()
-            recalculate_cart(cart)
-            messages.success(request, "Product removed.")
-            return redirect("create_invoice")
+      if 1 <= quantity <= product_stock:
+        update_cart_quantity(cart, cart_item, quantity)
+      else:
+        adjust_quantity_with_stock(cart, cart_item, product_stock)
 
-        elif action == "payment":
-            amount_paid = Decimal(request.POST.get("amount_paid", 0))
-            if cart and cart.items.exists():  # ✅ fixed related_name
-                cart.amount_paid = amount_paid
-                cart.amount_due = amount_paid - cart.grand_total
-                cart.save()
-                messages.success(request, f"Payment recorded: ₹{amount_paid}")
-            else:
-                messages.error(request, "No items in cart.")
-            return redirect("create_invoice")
+      return redirect("create_invoice")
 
-        elif action == "save_invoice":
-            if not customer:
-                messages.error(request, "Add a customer first.")
-                return redirect("create_invoice")
-            if not cart or not cart.items.exists():
-                messages.error(request, "Cart is empty.")
-                return redirect("create_invoice")
+    elif action == "remove_product":
+      item_id = int(request.POST.get("product_id"))
+      cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
+      cart.total -= cart_item.sub_total
+      cart_item.delete()
+      recalculate_cart(cart)
+      messages.success(request, "Product removed.")
+      return redirect("create_invoice")
 
-            invoice = Invoice.objects.create(
-                customer=customer,
-                staff=request.user,
-                date=now(),
-                total=cart.total,
-                grand_total=cart.grand_total,
-                gst=cart.gst,
-                gst_percentage=cart.gst_percentage,
-                amount_paid=cart.amount_paid,
-            )
+    elif action == "payment":
+      amount_paid = Decimal(request.POST.get("amount_paid", "0"))
+      if cart and cart.cart_items.exists():  # ✅ fixed related_name
+        cart.amount_paid = amount_paid
+        cart.amount_due = cart.grand_total - amount_paid
+        cart.save()
+        messages.success(request, f"Payment recorded: ₹{amount_paid}")
+      else:
+        messages.error(request, "No items in cart.")
+      return redirect("create_invoice")
 
-            # ✅ Wallet and due calculation
-            amount_paid = cart.amount_paid
-            grand_total = cart.grand_total
-            if amount_paid >= grand_total:
-                balance = amount_paid - grand_total
-                customer.wallet += balance
-                invoice.amount_due = 0
-                invoice.balance = balance
-            else:
-                due_amount = grand_total - amount_paid
-                if customer.wallet >= due_amount:
-                    customer.wallet -= due_amount
-                    invoice.amount_due = 0
-                else:
-                    remaining_due = due_amount - customer.wallet
-                    customer.wallet = 0
-                    invoice.amount_due = remaining_due
-                invoice.balance = 0
+    elif action == "save_invoice":
+      if not customer:
+        messages.error(request, "Add a customer first.")
+        return redirect("create_invoice")
+      if not cart or not cart.cart_items.exists():
+        messages.error(request, "Cart is empty.")
+        return redirect("create_invoice")
 
-            # ✅ Save invoice items
-            for item in cart.items.all():
-                InvoiceItem.objects.create(
-                    invoice=invoice,
-                    product=item.product,
-                    quantity=item.quantity,
-                    price=item.product.price,
-                    subtotal=item.sub_total
-                )
-                item.product.stock -= item.quantity
-                item.product.save()
+      invoice = Invoice.objects.create(
+        customer=customer,
+        staff=request.user,
+        date=now(),
+        total=cart.total,
+        grand_total=cart.grand_total,
+        gst=cart.gst,
+        gst_percentage=cart.gst_percentage,
+        amount_paid=cart.amount_paid,
+      )
 
-            invoice.save()
-            customer.save()
+      # ✅ Wallet and due calculation
+      amount_paid = Decimal(cart.amount_paid)
+      grand_total = Decimal(cart.grand_total)
+      if amount_paid >= grand_total:
+        balance = amount_paid - grand_total
+        customer.wallet += balance
+        invoice.amount_due = 0
+        invoice.balance = balance
+      else:
+        due_amount = grand_total - amount_paid
+        if customer.wallet >= due_amount:
+          customer.wallet -= due_amount
+          invoice.amount_due = 0
+        else:
+          remaining_due = due_amount - customer.wallet
+          customer.wallet = 0
+          invoice.amount_due = remaining_due
+        invoice.balance = 0
 
-            # ✅ Clear cart
-            cart.items.all().delete()
-            cart.delete()
+      # ✅ Save invoice items
+      for item in cart.cart_items.all():
+        InvoiceItem.objects.create(
+          invoice=invoice,
+          product=item.product,
+          quantity=item.quantity,
+          price=item.product.price,
+          subtotal=item.sub_total
+        )
+        item.product.stock -= item.quantity
+        item.product.save()
 
-            messages.success(request, "Invoice created successfully!")
-            return redirect("invoices")
+      invoice.save()
+      customer.save()
 
-        elif action == "clear_invoice":
-            if cart:
-                cart.items.all().delete()
-                cart.delete()
-                request.session.pop("phone", None)
-                messages.success(request, "Invoice cleared.")
-            else:
-                messages.error(request, "No invoice to clear.")
-            return redirect("create_invoice")
+      # ✅ Clear cart
+      cart.cart_items.all().delete()
+      cart.delete()
 
-    cart_items = cart.items.all() if cart else []
-    return render(request, "create_invoice.html", {
-        "customer": customer,
-        "cart": cart,
-        "cart_items": cart_items,
-        "due_amount": due_amount,
-        "balance": balance,
-    })
+      messages.success(request, "Invoice created successfully!")
+      return redirect("invoices")
 
+    elif action == "clear_invoice":
+      if cart:
+        cart.cart_items.all().delete()
+        cart.delete()
+        request.session.pop("phone", None)
+        messages.success(request, "Invoice cleared.")
+      else:
+        messages.error(request, "No invoice to clear.")
+      return redirect("create_invoice")
+
+  cart_items = cart.cart_items.all() if cart else []
+  return render(request, "create_invoice.html", {
+    "customer": customer,
+    "cart": cart,
+    "cart_items": cart_items,
+    "due_amount": due_amount,
+    "balance": balance,
+  })
 
 # ----------------- Helper functions -----------------
 
 def update_cart_quantity(cart, cart_item, quantity):
-    cart.total -= cart_item.sub_total
-    cart_item.quantity = quantity
-    cart_item.sub_total = cart_item.product.price * quantity
-    cart_item.save()
-    recalculate_cart(cart)
+  cart.total -= cart_item.sub_total
+  cart_item.quantity = quantity
+  cart_item.sub_total = cart_item.product.price * quantity
+  cart_item.save()
+
+  cart.total = sum(item.sub_total for item in cart.cart_items.all())
+  cart.gst = cart.total * Decimal((cart.gst_percentage / 100))
+  cart.grand_total = cart.total + cart.gst
+  cart.save()
 
 def adjust_quantity_with_stock(cart, cart_item, product_stock):
     messages.warning(None, f"Max stock is {product_stock}. Quantity adjusted.")
     update_cart_quantity(cart, cart_item, max(product_stock, 1))
 
+
 def recalculate_cart(cart):
-    total = sum(item.sub_total for item in cart.items.all())
-    gst = total * (cart.gst_percentage / Decimal(100))
-    cart.total = total
-    cart.gst = gst
-    cart.grand_total = total + gst
-    cart.save()
+  cart_items = CartItem.objects.filter(cart=cart)
+  total = sum(item.sub_total for item in cart_items)
+  gst = (total * cart.gst_percentage) / Decimal(100)
+
+  cart.total = total
+  cart.gst = gst
+  cart.grand_total = total + gst
+  cart.save()
 
 
 @login_required

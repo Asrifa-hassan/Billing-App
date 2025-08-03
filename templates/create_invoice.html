@@ -236,44 +236,77 @@ function getCookie(name) {
         if (key === name) return decodeURIComponent(value);
     }
 }
-
 const searchInput = document.getElementById('productSearch');
 const productDropdown = document.getElementById('productDropdown');
 
-searchInput.addEventListener('input',function(){
-    const query=this.value;
-    if(query.length<1){
-            productDropdown.innerHTML='';
-            return
-        }
-        fetch(`/search_product?q=${query}`)
-        .then(res=>res.json())
-        .then(data=>{
-            productDropdown.innerHTML='';
-            console.log(data)
-            data.forEach(product => {
-                const div = document.createElement('a');
-                div.className = 'list-group-item list-group-item-action';
-                div.textContent = product.name;
-                div.href = '#';
+// --- Search products ---
+searchInput.addEventListener('input', function () {
+    const query = this.value;
+    if (query.length < 1) {
+        productDropdown.innerHTML = '';
+        return;
+    }
 
-                div.addEventListener('click', function(e) {
-                    e.preventDefault();
+    fetch(`/search_product?q=${query}`)
+        .then(res => res.json())
+        .then(data => {
+            productDropdown.innerHTML = '';
+            data.forEach(product => {
+                const div = document.createElement('button');
+                div.type = 'button';
+                div.className = 'list-group-item list-group-item-action text-start';
+                div.textContent = product.name;
+
+                div.addEventListener('click', function () {
                     fetch(`/add_to_cart/${product.id}/`, {
-                        method: 'GET',  // or 'POST' if CSRF handled
+                        method: 'POST',
                         headers: {
+                            'Content-Type': 'application/json',
                             'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload(); // 🔄 Reload invoice page
+                        } else {
+                            alert(data.message || "Failed to add product.");
                         }
-                    }).then(() => {
-                        window.location.href = '/create_invoice/';  // refresh to see cart items
                     });
                 });
 
                 productDropdown.appendChild(div);
             });
         })
-    })
+        .catch(err => console.error("Error fetching products:", err));
+});
 
+// --- CSRF helper ---
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.split('=')[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+<script>
+function existing_customer(){
+    document.getElementById("existing-customer-div").style.display = "block";
+    document.getElementById("new-customer-div").style.display = "none";
+}
+function new_customer(){
+    document.getElementById("new-customer-div").style.display = "block";
+    document.getElementById("existing-customer-div").style.display = "none";
+}
 
 </script>
 <script src="{% static 'js/invoice.js' %}"></script>

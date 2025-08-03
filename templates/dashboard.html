@@ -96,7 +96,7 @@
                                     <tr>
                                         <td class="text-nowrap">{{ forloop.counter }}</td>
                                         <td class="text-nowrap">{{ product.product_id }}</td>
-                                        <td class="text-nowrap">{{ product.name }}/{{ product.description }}</td>
+                                        <td class="text-nowrap">{{ product.name }}</td>
                                         <td class="text-nowrap">{{ product.stock }}</td>
                                         <td class="text-nowrap">{{ product.updated_at }}</td>
                                         <td class="text-nowrap btn btn-product " style="width: 100%;" ><a href="{% url 'update_product' product.id %}" style="text-decoration: none;color: black;">View</a></td>
