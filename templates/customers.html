@@ -15,7 +15,7 @@
           <button type="submit" class="btn btn-product btn-sm" style="width: 26%; margin-top:0; height: 42px; color: black;">Search</button>
         </form>
       </div>
-      {% if customer %}
+      {% if customers %}
       <div class="card shadow-sm border-0 rounded-3">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
@@ -26,20 +26,18 @@
                 <th scope="col">Phone</th>
                 <th scope="col">Address</th>
                 <th scope="col">Wallet</th>
-                <th scope="col"></th>
+                <th scope="col"> </th>
               </tr>
             </thead>
             <tbody class="table-group-divider">
               {% for customer in customers %}
                 <tr>
-                  <td>{{ customer.id }}</td>
-                  <td>{{ customer.fullname }}</td>
-                  <td>+91 {{ customer.phone }}</td>
-                  <td>{{ customer.address }}</td>
-                  <td>
-                    <span class="text-danger fw-bold">₹{{ customer.wallet }}</span>
-                  </td>
-                  <td>{% if customer.wallet < 0 %}<a href="{% url 'edit_wallet' customer.id %}" class="btn btn-outline-primary btn-sm">Edit</a>{% endif %}</td>
+                  <td class="text-nowrap">{{ customer.id }}</td>
+                  <td class="text-nowrap">{{ customer.fullname }}</td>
+                  <td class="text-nowrap">+91 {{ customer.phone }}</td>
+                  <td class="text-nowrap">{{ customer.address }}</td>
+                  <td class="text-nowrap">{{ customer.wallet }}</td>
+                  <td class="text-nowrap">{% if customer.wallet < 0%}<a href="{% url 'edit_wallet' customer.id %}" class="btn btn-product">Edit</a> {% endif %}</td>
                 </tr>
               {% endfor %}
             </tbody>

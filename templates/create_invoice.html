@@ -8,204 +8,186 @@
 {% endblock %}
 {% block content %}
 <div class="col-lg-10 col-md-9 col-sm-9 page-col">
-    <div class="">
-        <h2>New Invoice Creation</h2>
-        <h4 class="back"><<a href="{% url 'invoices' %}">Back</a></h4>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold">New Invoice Creation</h3>
+            <a href="{% url 'invoices' %}" class="btn btn-outline-secondary btn-sm"><< Back</a>
+        </div>
         <div class="bg-white new-invoice">
             <div class="form-div p-4">
-                    <div class="row">
-                        <div class="col-lg-6">
-                                <div class="customer-details p-4">
-                                    <h4>Customer Information:</h4>
-                                    {% if customer %}
-                                    <p><strong>Name: </strong>{{ customer.fullname }}</p>
-                                    <p><strong>Phone: </strong>+91 {{ customer.phone }}</p>
-                                    <p><strong>Address: </strong>{{ customer.address }}</p>
-                                    {% else %}
-                                    <div class="customer-btn">
-                                        <button class="btn btn-success" onclick="new_customer()">New Customer</button>
-                                        <button class="btn btn-primary"  onclick="existing_customer()">Existing</button>
-                                    </div>
-                                    {% endif %}
-                                    <div class="new-customer-div p-4"  id="new-customer-div" style="display: none;">
-                                        <form action="{% url 'new_customer' %}" class="new_cumstomer" method="post">
-                                            {% csrf_token %}
-                                                <div class="mb-3 ">
-                                                    <label for="fullname">Fullname *</label><br>
-                                                    <input type="text" id="fullname" name="fullname" required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="phone">Phone Number *</label><br>
-                                                    <div style="display: flex;">
-                                                        <span style="padding: 8px; background: #eee; border: 1px solid #ccc; border-right: none;">+91</span>
-                                                        <input type="tel" id="phone" name="phone" required
-                                                            style="flex: 1; border: 1px solid #ccc; border-left: none;" minlength="10" maxlength="10" pattern="\d{10}">
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="address" >Address *</label><br>
-                                                    <textarea  name="address" id="address"></textarea>
-                                                </div>
-                                                <button type="submit" class="btn btn-primary w-100">Save Customer</button>
-                                        </form>
-                                    </div>
-                                    <div class="existing-customer-div p-4" id="existing-customer-div" style="display: none;">
-                                            <!-- {% csrf_token %} -->
-                                            <div class="position-relative mx-auto">
-                                                <input type="text" id="customerSearch" class="form-control" placeholder="Search customer by phone">
-                                                <div id="dropdownList" class="list-group position-absolute w-100" style="z-index: 1000;"></div>
-                                            </div>
-                                            <!-- <input type="text" name="search" id="search-input" list="phone-suggestions"
-                                                maxlength="10" pattern="\d{10}" required placeholder="Enter phone number" autocomplete="off">
-
-                                            <datalist id="phone-suggestions">
-                                                {% for customer in customers %}
-                                                    <option value="{{ customer.phone }}">{{ customer.phone }}</option>
-                                                {% endfor %}
-                                            </datalist> -->
-                                        </form>
-                                    </div>
-
-                                </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="product_search p-4">
-                                <!-- <form method="get" id="product-search-form" >
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="customer-details p-4 border rounded shadow-sm bg-white">
+                            <h4>👤 Customer Information:</h4>
+                            {% if customer %}
+                            <p><strong>👤 Name:</strong> {{ customer.fullname }}</p>
+                            <p><strong>📞 Phone:</strong> +91 {{ customer.phone }}</p>
+                            <p><strong>🏠 Address:</strong> {{ customer.address }}</p>
+                            {% else %}
+                            <div class="customer-btn d-flex gap-2 mt-3">
+                                <button class="btn flex-fill" onclick="new_customer()" style="width: 35%; height: 40px; background-color: #1d4876; color: white;">New Customer</button>
+                                <button class="btn flex-fill" onclick="existing_customer()" style="width: 35%; height: 40px; background-color: #1d4876; color: white;">Existing</button>
+                            </div>
+                            {% endif %}
+                            <div class="new-customer-div p-4 mt-3 border rounded bg-light" id="new-customer-div" style="display: none;">
+                                <form action="{% url 'new_customer' %}" class="new_cumstomer" method="post">
                                     {% csrf_token %}
-                                    <input type="text" name="search_product" id="product-search-input"
-                                        list="product-suggestions" class="form-control" placeholder="Search product..."
-                                        autocomplete="off" required>
-
-                                    <datalist id="product-suggestions">
-                                       {% for product in products %}
-                                    <option value="{{ product.name }}" data-price="{{ product.price }}" data-stock="{{ product.stock }}"  data-target="#product-details-{{ product.id }}" class="form-control">{{ product.name }}{% if product.description %}/{{ product.description }}{% endif %}</option>
-                                    {% endfor %}
-                                    </datalist>
-                                </form> -->
+                                    <div class="mb-3">
+                                        <label for="fullname">👤 Fullname *</label>
+                                        <input type="text" id="fullname" name="fullname" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phone">📞 Phone Number *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">+91</span>
+                                            <input type="tel" id="phone" name="phone" class="form-control" required minlength="10" maxlength="10" pattern="\d{10}">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="address">🏠 Address *</label>
+                                        <textarea name="address" id="address" class="form-control" required></textarea>
+                                    </div>
+                                   <div class="d-flex justify-content-center">
+                                       <button type="submit" class="btn btn-sm" style="width: 35%; background-color: #1d4876; color: white; height: 39px; font-size: 15px;">Save Customer</button>
+                                   </div>
+                                </form>
+                            </div>
+                            <div class="existing-customer-div p-4 mt-3 border rounded bg-light" id="existing-customer-div" style="display: none;">
                                 <div class="position-relative mx-auto">
-                                                <input type="text" id="productSearch" class="form-control" placeholder="Search product by phone">
-                                                <div id="productDropdown" class="list-group position-absolute w-100" style="z-index: 1000;"></div>
+                                    <input type="text" id="customerSearch" class="form-control" placeholder="🔍 Search customer by phone">
+                                    <div id="dropdownList" class="list-group position-absolute w-100" style="z-index: 1000;"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                        <div class="row p-2">
-                            <div class="product-details">
-                               <div class="scroll-table" style="overflow-x: auto;">
-                                    <table class="table table-bordered" id="table" style="min-width: 600px;">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-nowrap" style="width: 10%;" ></th>
-                                                <th class="text-nowrap">Product</th>
-                                                <th class="text-nowrap">Qty</th>
-                                                <th class="text-nowrap">Price</th>
-                                                <th class="text-nowrap" >Sub Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="product-items">
-                                            {% for i in cart_items %}
-                                                <tr id="product-item" class="product_item w-100">
-                                                        <td class="text-nowrap" style="width: 10%;" >
-                                                            <form method="post">
-                                                                {% csrf_token %}
-                                                                <input type="hidden" name="action" value="remove_product">
-                                                                <input type="hidden" name="product_id" value={{i.id}}>
-                                                                <button type="submit" style="margin: 0px 5px;" class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i></button>
-                                                            </form>
-                                                        </td>
-                                                        <td style="white-space: normal; word-break: break-word;">
-                                                            {{ i.product.name }}
-                                                        </td>
-                                                        <td class="text-nowrap">
-                                                            <div class="mb-3">
-                                                                <form  method="post" class="qty_form">
-                                                                    {% csrf_token %}
-                                                                    <input type="hidden" name="action" value="update_quantity">
-                                                                    <input type="hidden" name="item_id" value="{{ i.id }}">
-                                                                    <input type="number" name="quantity" value="{{ i.quantity }}" class="form-control" min="1" max="{{ i.product.stock }}" required onchange="this.form.submit();">
-                                                                </form>
-                                                            </div>
-                                                        </td>
-                                                        <td class="text-nowrap">
-                                                            <div class="mb-3">
-                                                                {{i.product.price}}
-                                                                    </div>
-                                                        </td>
-                                                        <td class="text-nowrap">
-                                                            <div class="mb-3">
-                                                                {{i.sub_total}}
-                                                            </div>
-                                                        </td>
-                                                </tr>
-
-                                                {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                    <div class="col-lg-6">
+                        <div class="product_search p-4 border rounded shadow-sm bg-white">
+                            <h4>📦 Product Search:</h4>
+                            <div class="position-relative mx-auto mt-3">
+                                <input type="text" id="productSearch" class="form-control" placeholder="🔍 Search product">
+                                <div id="productDropdown" class="list-group position-absolute w-100" style="z-index: 1000;"></div>
                             </div>
                         </div>
-                        <div class="amount-div">
-                            <div class="row">
-                                <div class="col-lg-6 order-2 order-md-1">
-                                    <div class="total-invoice-details w-100">
-                                        <div class="left-div">
-                                            {% if cart %}
+                    </div>
+                </div>
+                <div class="row p-2">
+                    <div class="product-details" style="border: none;">
+                        <div class="scroll-table" style="overflow-x: auto;">
+                            <table class="table table-bordered" id="table" style="min-width: 600px;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-nowrap" style="width: 10%;" >#</th>
+                                        <th class="text-nowrap">Product</th>
+                                        <th class="text-nowrap">Qty</th>
+                                        <th class="text-nowrap">Price</th>
+                                        <th class="text-nowrap" >Sub Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="product-items">
+                                    {% for i in cart_items %}
+                                    <tr id="product-item" class="product_item w-100">
+                                        <td class="text-nowrap" style="width: 10%;" >
                                             <form method="post">
                                                 {% csrf_token %}
-                                                <input type="hidden" name="action" value="payment">
-                                                <p><strong>Amount Paid :</strong><input type="number" step="0.01" id="amount_paid" name="amount_paid" value="{{ cart.amount_paid }}" required>
-                                                <button type="submit">Pay</button></p>
+                                                <input type="hidden" name="action" value="remove_product">
+                                                <input type="hidden" name="product_id" value={{i.id}}>
+                                                <button type="submit" style="margin: 0px 5px;" class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i></button>
                                             </form>
-                                            <p><strong>Amount Due :</strong><input type="number" id="amount_due" name="amount_due" value="{{due_amount}}" disabled></p>
-                                            <p><strong>Balence :</strong><input type="number" id="balence" name="balence" value="{{balance}}" disabled></p>
-                                            <p><strong>Wallet :</strong><input type="number" id="wallet" name="wallet" value="{{ customer.wallet }}" disabled></p>
-                                            {% endif %}
-
-                                        </div>
-                                    </div>
+                                        </td>
+                                        <td style="white-space: normal; word-break: break-word;">
+                                            {{ i.product.name }}
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <div class="mb-3">
+                                                <form  method="post" class="qty_form">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="update_quantity">
+                                                    <input type="hidden" name="item_id" value="{{ i.id }}">
+                                                    <input type="number" name="quantity" value="{{ i.quantity }}" class="form-control" min="1" max="{{ i.product.stock }}" required onchange="this.form.submit();">
+                                                </form>
+                                            </div>
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <div class="mb-3">
+                                                {{i.product.price}}
+                                            </div>
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <div class="mb-3">
+                                                {{i.sub_total}}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="amount-div">
+                    <div class="row">
+                        <div class="col-lg-6 order-2 order-md-1">
+                            <div class="total-invoice-details w-100">
+                                <div class="left-div">
+                                    {% if cart %}
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="payment">
+                                        <p><strong>Amount Paid :</strong><input type="number" step="0.01" id="amount_paid" name="amount_paid" value="{{ cart.amount_paid }}" required>
+                                        <button type="submit">Pay</button></p>
+                                    </form>
+                                    <p><strong>Amount Due :</strong><input type="number" id="amount_due" name="amount_due" value="{{due_amount}}" disabled></p>
+                                    <p><strong>Balence :</strong><input type="number" id="balence" name="balence" value="{{balance}}" disabled></p>
+                                    <p><strong>Wallet :</strong><input type="number" id="wallet" name="wallet" value="{{ customer.wallet }}" disabled></p>
+                                    {% endif %}
                                 </div>
-                                <div class="col-lg-6 order-1 order-md-2">
-                                     <div class="total-invoice-details w-100">
-                                        <div class="right-div">
-                                            {% if cart %}
-                                            <p><strong>Total :</strong><input type="number" id="total" name="total" value="{{ cart.total }}" disabled></p>
-                                            <p><strong>Tax({{ cart.gst_percentage }}%) :</strong><input type="number" id="tax" name="tax" value="{{ cart.gst }}" disabled></p>
-                                            <p><strong>Grand Total :</strong><input type="number" id="grand_total" name="grand_total" value="{{ cart.grand_total}}" disabled></p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
-                        <div class="button-div">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <form method="post">
-                                    {% csrf_token %}
-                                        <input type="hidden" name="action" value="clear_invoice">
-                                        <div class="submit-btn">
-                                            <button type="submit" class="btn-product  w-100">Clear</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="col-lg-6">
-                                    <form method="post">
-                                    {% csrf_token %}
-                                        <input type="hidden" name="action" value="save_invoice">
-                                        <div class="submit-btn">
-                                            <button type="submit" class="btn-product  w-100">Save Invoice</button>
-                                        </div>
-                                    </form>
+                        <div class="col-lg-6 order-1 order-md-2">
+                            <div class="total-invoice-details w-100">
+                                <div class="right-div">
+                                    {% if cart %}
+                                    <p><strong>Total :</strong><input type="number" id="total" name="total" value="{{ cart.total }}" disabled></p>
+                                    <p><strong>Tax({{ cart.gst_percentage }}%) :</strong><input type="number" id="tax" name="tax" value="{{ cart.gst }}" disabled></p>
+                                    <p><strong>Grand Total :</strong><input type="number" id="grand_total" name="grand_total" value="{{ cart.grand_total}}" disabled></p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="button-div">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="clear_invoice">
+                                <div class="submit-btn d-flex justify-content-center mt-3">
+                                    <button type="submit" class="btn px-4 py-2" style="min-width: 120px; height: 45px;background-color: #1d4876;color: white;">Clear</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-6">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="save_invoice">
+                                <div class="submit-btn d-flex justify-content-center mt-3">
+                                    <button type="submit" class="btn px-4 py-2 fw-semibold" style="min-width: 140px; background-color: #1d4876; color: white;">Save Invoice</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
 {% block script %}
+
+<script>
+div.href = `/add_to_cart/${product.id}`;
+</script>
 <script>
 const searchinput = document.getElementById('customerSearch');
 const dropdown = document.getElementById('dropdownList');
@@ -269,13 +251,26 @@ searchInput.addEventListener('input',function(){
         .then(data=>{
             productDropdown.innerHTML='';
             console.log(data)
-            data.forEach(product=>{
-                const div=document.createElement('a')
-                div.className='list-group-item list-group-item-action';
-                div.textContent=product.name;
-                div.href=`/add_to_cart/${product.id}`;
+            data.forEach(product => {
+                const div = document.createElement('a');
+                div.className = 'list-group-item list-group-item-action';
+                div.textContent = product.name;
+                div.href = '#';
+
+                div.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fetch(`/add_to_cart/${product.id}/`, {
+                        method: 'GET',  // or 'POST' if CSRF handled
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        }
+                    }).then(() => {
+                        window.location.href = '/create_invoice/';  // refresh to see cart items
+                    });
+                });
+
                 productDropdown.appendChild(div);
-            })
+            });
         })
     })
 

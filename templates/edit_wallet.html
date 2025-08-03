@@ -1,34 +1,51 @@
 {% extends 'navbar.html' %}
 {% load static %}
-{% block title %}Edit Invoice{% endblock %}
+{% block title %}Edit Wallet{% endblock %}
 {% block link %}
 <link rel="stylesheet" href="{% static 'css/product.css' %}">
 {% endblock %}
 {% block content %}
 <div class="col-lg-10 col-md-9 col-sm-9 page-col">
-    <div class="heading">
-        <h2>Edit Wallet #CUS{{ customer.id }}</h2><br>
-        <h4><<a href="{% url 'customers' %}" style="color: #000;">Back</a></h4>
+    <div class="heading d-flex justify-content-between align-items-center mb-3">
+        <h2>Edit Wallet #CUS{{ customer.id }}</h2>
+        <a href="{% url 'customers' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
     </div>
-    <div class="bg-white p-4">
-        <p><strong>Customer:</strong><input type="text" name="" id="" value=" {{ customer.fullname }}" disabled></p>
-        <p><strong>Previous Due Amount:</strong><input type="text" name="" id="" value="{{ old_wallet }}" disabled></p>
-    </div>
-    <div class="p-4 bg-white edit_content">
-        <div class="update-payment">
-            <p class="form">
-                <form method="post">
-                    {% csrf_token %}
-                    <label for="payment"><strong>Add Payment:</strong></label>
-                    <input type="number" step="0.01" name="payment" min="0" class="w-25" value="{{ payment }}" required>
-                    <button type="submit">Pay</button>
-                </form>
-            </p>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label"><strong>Customer:</strong></label>
+                <input type="text" class="form-control" value="{{ customer.fullname }}" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><strong>Previous Due Amount:</strong></label>
+                <input type="text" class="form-control" value="{{ old_wallet }}" disabled>
+            </div>
         </div>
-        {% if payment %}
-        <p><strong>Due Amount:</strong><input type="text" name="" id="" value="{{ new_due }}" disabled></p>
-        <p><strong>Balence</strong><input type="text" name="" id="" value="{{ new_balance }}" disabled></p>
-        {% endif %}
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <label for="payment" class="form-label"><strong>Add Payment:</strong></label>
+                <div class="d-flex gap-2">
+                    <input type="number" step="0.01" name="payment" min="0" class="form-control w-25" value="{{ payment }}" required>
+                    <button type="submit" class="btn btn-success">Pay</button>
+                </div>
+            </form>
+
+            {% if payment %}
+            <div class="mb-2">
+                <label class="form-label"><strong>Due Amount:</strong></label>
+                <input type="text" class="form-control" value="{{ new_due }}" disabled>
+            </div>
+            <div>
+                <label class="form-label"><strong>Balance:</strong></label>
+                <input type="text" class="form-control" value="{{ new_balance }}" disabled>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
