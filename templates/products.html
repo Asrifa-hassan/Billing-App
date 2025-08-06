@@ -3,76 +3,105 @@
 {% block title %}Products List{% endblock %}
 {% block link %}
 <link rel="stylesheet" href="{% static 'css/product.css' %}">
+<style>
+    /* ✅ Make images uniform */
+    .product-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    /* ✅ Mobile adjustments */
+    @media (max-width: 768px) {
+        .search-input {
+            width: 100% !important;
+            margin-bottom: 10px;
+        }
+        .search-div button {
+            width: 100% !important;
+            margin-left: 0 !important;
+        }
+        .add-product .button {
+            text-align: center;
+            float: none !important;
+            padding-top: 0;
+        }
+        .add-product .row {
+            flex-direction: column;
+        }
+        .add-product .col-lg-6 {
+            width: 100%;
+        }
+    }
+</style>
 {% endblock %}
+
 {% block content %}
-<div class="col-lg-10 col-md-9 col-sm-9 page-col">
-   <h2 class="p-4">📦 Products List</h2>
-   <div class="add-product">
-    <div class="row" style="height: auto;">
-        <div class="col-lg-6">
-          <div class="search-div p-4">
-                <div class="search-content">
-                  <form action="{% url 'products_list' %}" method="get" style="width: 100%;">
-                    {% csrf_token %}
-                    <label for="product-search" class="visually-hidden">Search Product</label>
-                    <input type="text" id="product-search" class="search-input" name="search" style="width:60%; height: 42px;" placeholder="🔍 Search product..." autocomplete="off">
-                    <button type="submit" class="btn btn-product btn-sm" style="width: 16%; margin-top: -9px; height: 42px; color: black;">Search</button>
-                  </form>
-                </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="button p-4" style="float: right;">
-              <a href="{% url 'add_product' %}" class="btn text-white" style="background-color: #345578; border-radius: 8px; padding: 8px 16px; font-size: 13px;"> Add Product</a>
-          </div>
+<div class="col-lg-10 col-md-9 col-sm-12 page-col">
+    <div class="d-flex flex-wrap justify-content-between align-items-center p-4">
+        <h2 class="fw-bold mb-3 mb-md-0">📦 Products List</h2>
+        <a href="{% url 'add_product' %}" class="btn text-white" style="background-color: #345578; border-radius: 8px; padding: 8px 16px; font-size: 14px;">➕ Add Product</a>
+    </div>
+
+    <div class="search-div px-4">
+        <form action="{% url 'products_list' %}" method="get" class="d-flex flex-wrap gap-2 ">
+            {% csrf_token %}
+            <input type="text" id="product-search" class="form-control search-input" style="width: 30%;height: 43px;font-size: 14px;" name="search" placeholder="🔍 Search product..." autocomplete="off">
+            <button type="submit" class="btn btn-primary text-white" style="background-color: #1d4876; border:none;">Search</button>
+        </form>
+    </div>
+
+    {% if products %}
+    <div class="table-div mt-4 px-4">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ product.product_id }}</td>
+                        <td>
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img">
+                            {% else %}
+                                No image
+                            {% endif %}
+                        </td>
+                        <td>{{ product.name }}</td>
+                        <td>₹{{ product.price }}</td>
+                        <td>{{ product.category }}</td>
+                        <td>
+                            {% if product.stock <= 0 %}
+                                <span class="text-danger">Out of Stock</span>
+                            {% else %}
+                                {{ product.stock }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'product_view' product.id %}" class="btn btn-success btn-sm" style="background-color: #1d4876;">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-   </div>
-   {% if products %}
-   <div class="table-div">
-     <div class="table-responsive" >
-        <table class="table table-hover table-bordered">
-           <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">ID</th>
-                <th scope="col">Image</th>
-                <th scope="col">Name</th>
-                <th scope="col">Price</th>
-                <th scope="col">Category</th>
-                <th scope="col">Stock</th>
-                <th scope="col"></th>
-              </tr>
-           </thead>
-           <tbody class="table-group-divider">
-              {% for product in products %}
-              <tr>
-                  <td class="text-nowrap">{{ forloop.counter }}</td>
-                  <td class="text-nowrap">{{ product.product_id }}</td>
-                  <td class="text-nowrap">{% if product.image %}<img src="{{ product.image.url }}" alt="">{% else%}No image{% endif %}</td>
-                  <td class="text-nowrap">{{ product.name }}</td>
-                  <td class="text-nowrap">₹{{ product.price }}</td>
-                  <td class="text-nowrap">{{ product.category }}</td>
-                  <td class="text-nowrap">
-                    {% if product.stock <= 0 %}
-                      <span style="color: red;">Out of Stock</span>
-                    {% else %}
-                        {{ product.stock }}
-                    {% endif %}
-                  </td>
-                  <td class="text-nowrap"><a href="{% url 'product_view' product.id %}" class="btn btn-product">view</a></td>
-              </tr>
-             {% endfor %}
-           </tbody>
-       </table>
-     </div>
-   </div>
-   {% else %}
-    <div class="else">
-        <div class="p-4 text-center text-box">
-        <h4>No Product found!</h4>
-        </div>
+    {% else %}
+    <div class="p-4 text-center">
+        <h4 class="text-muted">🚫 No Product found!</h4>
     </div>
-   {% endif %}
+    {% endif %}
 </div>
 {% endblock %}

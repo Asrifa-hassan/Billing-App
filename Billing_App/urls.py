@@ -26,8 +26,11 @@ urlpatterns = [
   path('search_customer',views.search_customer,name="search_customer"),
   path('add_to_cart/<int:id>/', views.add_to_cart, name='add_to_cart'),
   path('search_product',views.search_product,name="search_product"),
-  path('invoice_view/<int:id>',views.invoice_view,name="invoice_view"),
-  path('invoice_pdf/<int:id>',views.invoice_pdf,name="invoice_pdf"),
+  # path('invoice_view/<int:id>',views.invoice_view,name="invoice_view"),
+  path('invoice/<int:id>/view/', views.invoice_view, name='invoice_view'),
+  path('update_invoice_status/<int:id>/', views.update_invoice_status, name='update_invoice_status'),
+  # path('invoice_pdf/<int:id>',views.invoice_pdf,name="invoice_pdf"),
+  path('invoice/<int:id>/pdf/', views.invoice_pdf, name='invoice_pdf'),
   path('edit_wallet/<int:id>',views.edit_wallet,name="edit_wallet"),
 
 ]

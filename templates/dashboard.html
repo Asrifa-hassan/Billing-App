@@ -2,159 +2,155 @@
 {% load static %}
 {% block title %}Dashboard{% endblock %}
 {% block styles %}
- <link rel="stylesheet" href="{% static 'css/product.css' %}">
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
 {% endblock %}
 {% block content %}
 <div class="col-lg-10 col-md-9 col-sm-9 page-col">
     <div class="dashboard-content p-4">
-        <div class="row p-4" style="height: auto;">
-            <div class="col-lg-4">
-                <div class="dashboard-box">
+        <!-- Dashboard Stats -->
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-box text-center">
                     <div class="box-content">
                         <h6>Total Invoice</h6>
-                        <h1>{{ invoices }}</h1>
+                        <h2>{{ invoices }}</h2>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="dashboard-box">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-box text-center">
                     <div class="box-content">
                         <h6>Total Invoice Amount</h6>
-                        <h1>₹{{ total_invoice_amount|floatformat:2 }}</h1>
+                        <h2>₹{{ total_invoice_amount|floatformat:2 }}</h2>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="dashboard-box">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-box text-center">
                     <div class="box-content">
                         <h6>Total Customer</h6>
-                        <h1>{{ customers }}</h1>
+                        <h2>{{ customers }}</h2>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="dashboard-box">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-box text-center">
                     <div class="box-content">
                         <h6>Items in Stock</h6>
-                        <h1>{{ stocks }}</h1>
+                        <h2>{{ stocks }}</h2>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="dashboard-box">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-box text-center">
                     <div class="box-content">
                         <h6>Total Product</h6>
-                        <h1>{{ products_count }}</h1>
+                        <h2>{{ products_count }}</h2>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="dashboard-box">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-box text-center">
                     <div class="box-content">
                         <h6>Total Staff</h6>
-                        <h1>{{ staffs }}</h1>
+                        <h2>{{ staffs }}</h2>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="dashboard-box">
+            <div class="col-md-6">
+                <div class="dashboard-box text-center">
                     <div class="box-content">
                         <h6>Total Amount Paid</h6>
-                        <h1>₹{{ total_amount_paid|floatformat:2 }}</h1>
+                        <h2>₹{{ total_amount_paid|floatformat:2 }}</h2>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="dashboard-box">
+            <div class="col-md-6">
+                <div class="dashboard-box text-center">
                     <div class="box-content">
                         <h6>Total Amount Due</h6>
-                        <h1>₹{{ total_amount_due|floatformat:2 }}</h1>
+                        <h2>₹{{ total_amount_due|floatformat:2 }}</h2>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row" style="height: auto;">
-            <div class="recent-invoice">
-                <h1>Out Of Stokes</h1>
-                <div class="invoice-content">
+
+        <!-- Out of Stock Section -->
+        <div class="recent-invoice mt-4">
+            <h4>Out of Stock</h4>
+            <div class="invoice-content">
                 {% if products_lt10 %}
-                    <div class="table-div">
-                        <div class="table-responsive" >
-                            <table class="table table-hover table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Product ID</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Stock</th>
-                                        <th scope="col">Updated at</th>
-                                        <th scope="col"></th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-group-divider">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product ID</th>
+                                    <th>Name</th>
+                                    <th>Stock</th>
+                                    <th>Updated at</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 {% for product in products_lt10 %}
                                     <tr>
-                                        <td class="text-nowrap">{{ forloop.counter }}</td>
-                                        <td class="text-nowrap">{{ product.product_id }}</td>
-                                        <td class="text-nowrap">{{ product.name }}</td>
-                                        <td class="text-nowrap">{{ product.stock }}</td>
-                                        <td class="text-nowrap">{{ product.updated_at }}</td>
-                                        <td class="text-nowrap btn btn-product " style="width: 100%;" ><a href="{% url 'update_product' product.id %}" style="text-decoration: none;color: black;">View</a></td>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ product.product_id }}</td>
+                                        <td>{{ product.name }}</td>
+                                        <td>{{ product.stock }}</td>
+                                        <td>{{ product.updated_at }}</td>
+                                        <td>
+                                            <a href="{% url 'update_product' product.id %}"
+                                               class="btn btn-outline-primary btn-sm w-100" style="background-color: #1d4876;border: none;color: white;">View</a>
+                                        </td>
                                     </tr>
                                 {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 {% else %}
-                    <div class="else">
-                        <div class="p-4 text-center text-box">
-                            <h4> No,Out of stocks!</h4>
-                        </div>
+                    <div class="p-4 text-center">
+                        <h5>No products are out of stock</h5>
                     </div>
                 {% endif %}
-                </div>
             </div>
         </div>
-        <div class="row" style="height: auto; padding: 10px 0;">
-            <div class="recent-invoice">
-                <h1>Recent Invoices</h1>
-                <div class="invoice-content">
-                    {% if recent_invoice %}
-                    <div class="table-div">
-                        <div class="table-responsive" >
-                            <table class="table table-hover table-bordered">
-                                <thead>
+
+        <!-- Recent Invoices Section -->
+        <div class="recent-invoice mt-4">
+            <h4>Recent Invoices</h4>
+            <div class="invoice-content">
+                {% if recent_invoice %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Invoice No</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in recent_invoice %}
                                     <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Invoice No</th>
-                                        <th scope="col">Customer</th>
-                                        <th scope="col">Date</th>
-                                        <th scope="col">Total</th>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>#INV{{ invoice.id }}</td>
+                                        <td>{{ invoice.customer.fullname }}</td>
+                                        <td>{{ invoice.date }}</td>
+                                        <td>{{ invoice.grand_total }}</td>
                                     </tr>
-                                </thead>
-                                <tbody class="table-group-divider">
-                                    {% for invoice in recent_invoice %}
-                                        <tr>
-                                            <td class="text-nowrap">{{ forloop.counter }}</td>
-                                            <td class="text-nowrap">#INV{{ invoice.id }}</td>
-                                            <td class="text-nowrap">{{ invoice.customer.fullname }}</td>
-                                            <td class="text-nowrap">{{ invoice.date }}</td>
-                                            <td class="text-nowrap">{{ invoice.grand_total }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    {% else %}
-                    <div class="else">
-                        <div class="p-4 text-center text-box">
-                            <h4>No Invoice found!</h4>
-                        </div>
+                {% else %}
+                    <div class="p-4 text-center">
+                        <h5>No invoices found</h5>
                     </div>
-                    {% endif %}
-                </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -11,8 +11,8 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <form action="{% url 'customers' %}" method="get" class="d-flex">
           <label for="customer-search" class="visually-hidden">Search</label>
-          <input type="text" id="customer-search" class="search-input" name="search" style="width:80%; height: 42px;" placeholder="🔍 Search here..." autocomplete="off">
-          <button type="submit" class="btn btn-product btn-sm" style="width: 26%; margin-top:0; height: 42px; color: black;">Search</button>
+          <input type="text" id="customer-search" class="search-input" name="search" style="width:300px; height: 42px;" placeholder="🔍 Search here..." autocomplete="off">
+          <button type="submit" class="btn btn-primary btn-sm" style="width: 26%;margin-top:0;height:42px;color:white;background-color: #1d4876;border:none;margin-left: 26px;">Search</button>
         </form>
       </div>
       {% if customers %}

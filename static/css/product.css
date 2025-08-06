@@ -20,9 +20,8 @@
     max-height: 60px;
 }
 .btn-product{
-    background-color:lightgray !important;
+    background-color: #1d4876 !important;
 }
-
 .table-responsive {
     width: 100%;
     overflow-x: auto;
@@ -72,7 +71,7 @@
 }
 .btn-product-submit{
     width:100%;
-    background-color:lightgray !important;
+    background-color:#1d4876 !important;
 }
 
 /* update_product.html */
