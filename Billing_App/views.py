@@ -722,37 +722,38 @@ def render_to_pdf(html_page, context):
 
 
 def invoice_pdf(request, id):
-    invoice = get_object_or_404(Invoice, id=id)
-    invoice_items = InvoiceItem.objects.filter(invoice=invoice)
-    wallet = invoice.customer.wallet
-    total_balance = 0
-    total_due = 0
+  invoice = get_object_or_404(Invoice, id=id)
+  invoice_items = InvoiceItem.objects.filter(invoice=invoice)
 
-    if wallet < 0:
-        total_due = abs(wallet)
-    elif wallet > 0:
-        total_balance = wallet
+  # ✅ Fix placement of subtotal calculation
+  for item in invoice_items:
+    if not item.subtotal or item.subtotal == 0:
+      item.subtotal = item.quantity * item.price  # updated only in memory
 
-    context = {
-        'invoice': invoice,
-        'invoice_item': invoice_items,
-        'total_due': total_due,
-        'total_balance': total_balance,
-        'wallet': wallet
-    }
+  wallet = invoice.customer.wallet
+  total_balance = wallet if wallet > 0 else 0
+  total_due = abs(wallet) if wallet < 0 else 0
 
-    template = get_template("invoice_pdf.html")
-    html = template.render(context)
+  context = {
+    'invoice': invoice,
+    'invoice_item': invoice_items,
+    'total_due': total_due,
+    'total_balance': total_balance,
+    'wallet': wallet
+  }
 
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = f'inline; filename="invoice_{invoice.id}.pdf"'
+  template = get_template("invoice_pdf.html")
+  html = template.render(context)
 
-    pisa_status = pisa.CreatePDF(html, dest=response)
+  response = HttpResponse(content_type="application/pdf")
+  response["Content-Disposition"] = f'inline; filename="invoice_{invoice.id}.pdf"'
 
-    if pisa_status.err:
-        return HttpResponse("Error generating PDF", status=500)
+  pisa_status = pisa.CreatePDF(html, dest=response)
 
-    return response
+  if pisa_status.err:
+    return HttpResponse("Error generating PDF", status=500)
+
+  return response
 
 
 def edit_wallet(request, id):

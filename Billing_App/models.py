@@ -106,5 +106,10 @@ class InvoiceItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
+    def save(self, *args, **kwargs):
+        # Ensure subtotal is correct before saving
+        self.subtotal = Decimal(self.quantity) * Decimal(self.price)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Invoice: {self.invoice}"
