@@ -32,5 +32,5 @@ urlpatterns = [
   # path('invoice_pdf/<int:id>',views.invoice_pdf,name="invoice_pdf"),
   path('invoice/<int:id>/pdf/', views.invoice_pdf, name='invoice_pdf'),
   path('edit_wallet/<int:id>',views.edit_wallet,name="edit_wallet"),
-
 ]
+handler404 = 'Billing_App.views.error_page'
