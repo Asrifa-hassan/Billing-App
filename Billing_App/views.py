@@ -721,7 +721,6 @@ def render_to_pdf(html_page, context):
   return response if not pisa_status.err else HttpResponse('Error creating pdf')
 
 
-@login_required
 def invoice_pdf(request, id):
     invoice = get_object_or_404(Invoice, id=id)
     invoice_items = InvoiceItem.objects.filter(invoice=invoice)
