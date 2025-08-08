@@ -1,134 +1,156 @@
 {% load static %}
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Styles -->
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-  {% block link %}{% endblock %}
-  {% block styles %}{% endblock %}
-
   <style>
-    /* Sidebar */
+    body {
+      overflow-x: hidden;
+    }
+
     #sidebar {
       height: 100vh;
-      transition: width 0.3s;
       background-color: #f8f9fa;
+      transition: all 0.3s;
     }
 
-    #sidebar.collapsed {
-      width: 70px !important;
-    }
-
-    #sidebar .list-group-item {
+    #sidebar .nav-link {
+      padding: 10px 20px;
       display: flex;
       align-items: center;
     }
 
-    #sidebar.collapsed .sidebar-text {
+    #sidebar .nav-link i {
+      margin-right: 10px;
+    }
+
+    #sidebar.collapsed {
+      width: 70px;
+    }
+
+    #sidebar.collapsed .nav-link span {
       display: none;
-    }
-
-    #sidebar.collapsed .list-group-item {
-      justify-content: center;
-      text-align: center;
-      padding-left: 0;
-      padding-right: 0;
-    }
-
-    #sidebar.collapsed .list-group-item i {
-      margin: 0;
-    }
-
-    #sidebarToggle {
-      margin: 10px;
-    }
-
-    .content-area {
-      transition: margin-left 0.3s;
     }
 
     @media (max-width: 768px) {
       #sidebar {
-        position: absolute;
+        position: fixed;
+        left: -250px;
+        width: 250px;
+        top: 0;
         z-index: 1030;
       }
 
-      .content-area {
+      #sidebar.show {
+        left: 0;
+      }
+
+      #main-content {
         margin-left: 0 !important;
       }
+
+      #sidebarOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1029;
+      }
+
+      #sidebar.show + #sidebarOverlay {
+        display: block;
+      }
+    }
+
+    #main-content {
+      transition: margin-left 0.3s;
+      margin-left: 250px;
+    }
+
+    #sidebar.collapsed ~ #main-content {
+      margin-left: 70px;
     }
   </style>
+  {% block link %}{% endblock %}
+  {% block styles %}{% endblock %}
 </head>
 <body>
-
-<!-- Messages -->
 {% if messages %}
-  {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  {% endfor %}
-{% endif %}
-
-<div class="container-fluid">
-  <div class="row">
-
-    <!-- Sidebar -->
-    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse show">
-      <div class="d-flex justify-content-between align-items-center px-3 pt-3">
-        <h5 class="mb-0 sidebar-text">Menu</h5>
-        <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary d-none d-md-inline">
-          <i class="fa fa-bars"></i>
-        </button>
-      </div>
-      <ul class="nav flex-column list-group list-group-flush mt-3">
-        <a href="{% url 'dashboard' %}" class="list-group-item"><i class="fa-solid fa-house me-2"></i><span class="sidebar-text">Dashboard</span></a>
-        {% if user.is_superuser %}
-          <a href="{% url 'staff' %}" class="list-group-item"><i class="fa-solid fa-user-tie me-2"></i><span class="sidebar-text">Staff</span></a>
-        {% endif %}
-        <a href="{% url 'products_list' %}" class="list-group-item"><i class="fa-solid fa-cubes me-2"></i><span class="sidebar-text">Product</span></a>
-        <a href="{% url 'customers' %}" class="list-group-item"><i class="fa-solid fa-user me-2"></i><span class="sidebar-text">Customers</span></a>
-        <a href="{% url 'invoices' %}" class="list-group-item"><i class="fa-solid fa-file-invoice me-2"></i><span class="sidebar-text">Invoice</span></a>
-        <hr>
-        <a href="{% url 'logout_page' %}" class="list-group-item text-danger"><i class="fa-solid fa-arrow-right-from-bracket fa-flip-horizontal me-2"></i><span class="sidebar-text">Logout</span></a>
-      </ul>
-    </nav>
-
-    <!-- Main content -->
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-area">
-      {% block content %}
-      {% endblock %}
-    </main>
-
+{% for message in messages %}
+<div class="alert-box">
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 </div>
+{% endfor %}
+{% endif %}
+<div class="d-flex">
+  <nav id="sidebar" class="bg-light">
+    <div class="p-3">
+      <h5 class="sidebar-title">Menu</h5>
+      <ul class="nav flex-column">
+        <li><a class="nav-link" href="#"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
+        <li><a class="nav-link" href="#"><i class="fa fa-cubes"></i><span>Products</span></a></li>
+        <li><a class="nav-link" href="#"><i class="fa fa-users"></i><span>Customers</span></a></li>
+        <li><a class="nav-link" href="#"><i class="fa fa-file-invoice"></i><span>Invoices</span></a></li>
+        <li><a class="nav-link text-danger" href="#"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+      </ul>
+    </div>
+  </nav>
+      <div id="sidebarOverlay"></div>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Page Content -->
+  <div id="main-content" class="flex-grow-1 p-4">
+    <!-- Toggle button -->
+    <button class="btn btn-outline-primary mb-3" id="toggleSidebar">
+      <i class="fa fa-bars"></i>
+    </button>
+    {% block content %}
+    {% endblock %}
+  </div>
+</div>
+{% block script %}
+{% endblock %}
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const sidebar = document.getElementById("sidebar");
-    const toggleBtn = document.getElementById("sidebarToggle");
-
-    toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("collapsed");
-    });
-
-    // Auto close alerts after 2 seconds
-    setTimeout(() => {
+  setTimeout(function() {
       const alerts = document.querySelectorAll('.alert');
-      alerts.forEach(alert => new bootstrap.Alert(alert).close());
-    }, 2000);
+      alerts.forEach(function(alert) {
+      let bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+      });
+  }, 2000);  // 2000 ms = 2 seconds
+
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggleSidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  toggleBtn.addEventListener('click', () => {
+    if (window.innerWidth < 768) {
+      sidebar.classList.toggle('show');
+      sidebarOverlay.classList.toggle('d-block');
+    } else {
+      sidebar.classList.toggle('collapsed');
+      document.getElementById('main-content').classList.toggle('ml-collapsed');
+    }
+  });
+
+  sidebarOverlay.addEventListener('click', () => {
+    sidebar.classList.remove('show');
+    sidebarOverlay.classList.remove('d-block');
   });
 </script>
-
-{% block script %}{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js" integrity="sha512-b+nQTCdtTBIRIbraqNEwsjB6UvL3UEMkXnhzd8awtCYh0Kcsjl9uEgwVFVbhoj3uu1DO1ZMacNvLoyJJiNfcvg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
