@@ -88,20 +88,22 @@
                         <td>{{ invoice.amount_due }}</td>
                         <td>
                             {% if invoice.amount_paid >= invoice.grand_total %}
-                                <span class="text-success fw-bold">Fully Paid</span>
+                                <span class="text-success fw-bold" style="font-size: 13px;">Fully Paid</span>
                             {% else %}
                                 <span class="text-danger fw-bold">Pending</span>
                             {% endif %}
                         </td>
                         <td>
                             <a href="{% url 'invoice_view' invoice.id %}" class="btn btn-product btn-sm">View</a>
+                            {% if invoice.amount_paid < invoice.grand_total %}
                             <form action="{% url 'update_invoice_status' invoice.id %}" method="post" class="d-inline">
                                 {% csrf_token %}
                                 <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
-                                    <option value="pending" {% if invoice.amount_paid < invoice.grand_total %}selected{% endif %}>Pending</option>
-                                    <option value="paid" {% if invoice.amount_paid >= invoice.grand_total %}selected{% endif %}>Paid</option>
+                                    <option value="pending" selected>Pending</option>
+                                    <option value="paid">Mark as Paid</option>
                                 </select>
                             </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

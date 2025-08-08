@@ -7,77 +7,6 @@
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      overflow-x: hidden;
-    }
-
-    #sidebar {
-      height: 100vh;
-      background-color: #f8f9fa;
-      transition: all 0.3s;
-    }
-
-    #sidebar .nav-link {
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-    }
-
-    #sidebar .nav-link i {
-      margin-right: 10px;
-    }
-
-    #sidebar.collapsed {
-      width: 70px;
-    }
-
-    #sidebar.collapsed .nav-link span {
-      display: none;
-    }
-
-    @media (max-width: 768px) {
-      #sidebar {
-        position: fixed;
-        left: -250px;
-        width: 250px;
-        top: 0;
-        z-index: 1030;
-      }
-
-      #sidebar.show {
-        left: 0;
-      }
-
-      #main-content {
-        margin-left: 0 !important;
-      }
-
-      #sidebarOverlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1029;
-      }
-
-      #sidebar.show + #sidebarOverlay {
-        display: block;
-      }
-    }
-
-    #main-content {
-      transition: margin-left 0.3s;
-      margin-left: 250px;
-    }
-
-    #sidebar.collapsed ~ #main-content {
-      margin-left: 70px;
-    }
-  </style>
   {% block link %}{% endblock %}
   {% block styles %}{% endblock %}
 </head>
@@ -92,32 +21,38 @@
 </div>
 {% endfor %}
 {% endif %}
-<div class="d-flex">
-  <nav id="sidebar" class="bg-light">
-    <div class="p-3">
-      <h5 class="sidebar-title">Menu</h5>
-      <ul class="nav flex-column">
-        <li><a class="nav-link" href="{% url 'dashboard' %}" style="color: black"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
-        {% if user.is_superuser %}
-          <li><a class="nav-link" href="{% url 'staff' %}" style="color: black"><i class="fa fa-user-tie me-2"></i><span>Staff</span></a></li>
-        {% endif %}
-        <li><a class="nav-link" href="{% url 'products_list' %}" style="color: black"><i class="fa fa-cubes"></i><span>Products</span></a></li>
-        <li><a class="nav-link" href="{% url 'customers' %}" style="color: black"><i class="fa fa-users"></i><span>Customers</span></a></li>
-        <li><a class="nav-link" href="{% url 'invoices' %}" style="color: black"><i class="fa fa-file-invoice"></i><span>Invoices</span></a></li>
-        <li><a class="nav-link text-danger" href="{% url 'logout_page' %}" style="color: black"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
-      </ul>
-    </div>
-  </nav>
-      <div id="sidebarOverlay"></div>
+<div class="dashboard-page">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-2 col-md-3 col-sm-3 icon-col">
+        <div class="main-icon">
+          <div>
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+        </div>
+        <hr>
+        <div class="sub-icon">
+          <ul class="list-group container" style="padding-left: 0;padding-right: 0;">
+            <a href="{% url 'dashboard' %}" class="list-group-item"><span><i class="fa-solid fa-house"></i></span> <p>Dashboard</p></a>
+            {% if user.is_superuser %}
+            <a href="{% url 'staff' %}" class="list-group-item"><span><i class="fa-solid fa-user-tie"></i></span> <p>Staff</p></a>
+            {% endif %}
+            <a href="{% url 'products_list' %}" class="list-group-item"><span><i class="fa-solid fa-cubes"></i></span><p>Product</p></a>
+            <a href="{% url 'customers' %}" class="list-group-item"><span><i class="fa-solid fa-user"></i></span><p>Customers</p></a>
+            <a href="{% url 'invoices' %}" class="list-group-item"><span><i class="fa-solid fa-file-invoice"></i></span><p>Invoice</p></a>
+          </ul>
+        </div>
+        <hr>
+        <div class="end-icon">
+          <ul>
+            <a class="logout_btn" href="{% url 'logout_page' %}"><span><i class="fa-solid fa-arrow-right-from-bracket fa-flip-horizontal"></i></span> Log out</a>
+          </ul>
+        </div>
+      </div>
+      {% block content %}
 
-  <!-- Page Content -->
-  <div id="main-content" class="flex-grow-1 p-4">
-    <!-- Toggle button -->
-    <button class="btn btn-outline-primary mb-3" id="toggleSidebar">
-      <i class="fa fa-bars"></i>
-    </button>
-    {% block content %}
-    {% endblock %}
+      {% endblock %}
+    </div>
   </div>
 </div>
 {% block script %}
@@ -130,25 +65,6 @@
       bsAlert.close();
       });
   }, 2000);  // 2000 ms = 2 seconds
-
-  const sidebar = document.getElementById('sidebar');
-  const toggleBtn = document.getElementById('toggleSidebar');
-  const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-  toggleBtn.addEventListener('click', () => {
-    if (window.innerWidth < 768) {
-      sidebar.classList.toggle('show');
-      sidebarOverlay.classList.toggle('d-block');
-    } else {
-      sidebar.classList.toggle('collapsed');
-      document.getElementById('main-content').classList.toggle('ml-collapsed');
-    }
-  });
-
-  sidebarOverlay.addEventListener('click', () => {
-    sidebar.classList.remove('show');
-    sidebarOverlay.classList.remove('d-block');
-  });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js" integrity="sha512-b+nQTCdtTBIRIbraqNEwsjB6UvL3UEMkXnhzd8awtCYh0Kcsjl9uEgwVFVbhoj3uu1DO1ZMacNvLoyJJiNfcvg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
