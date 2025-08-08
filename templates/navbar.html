@@ -97,11 +97,14 @@
     <div class="p-3">
       <h5 class="sidebar-title">Menu</h5>
       <ul class="nav flex-column">
-        <li><a class="nav-link" href="#"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
-        <li><a class="nav-link" href="#"><i class="fa fa-cubes"></i><span>Products</span></a></li>
-        <li><a class="nav-link" href="#"><i class="fa fa-users"></i><span>Customers</span></a></li>
-        <li><a class="nav-link" href="#"><i class="fa fa-file-invoice"></i><span>Invoices</span></a></li>
-        <li><a class="nav-link text-danger" href="#"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+        <li><a class="nav-link" href="{% url 'dashboard' %}" style="color: black"><i class="fa fa-home"></i><span>Dashboard</span></a></li>
+        {% if user.is_superuser %}
+          <li><a class="nav-link" href="{% url 'staff' %}" style="color: black"><i class="fa fa-user-tie me-2"></i><span>Staff</span></a></li>
+        {% endif %}
+        <li><a class="nav-link" href="{% url 'products_list' %}" style="color: black"><i class="fa fa-cubes"></i><span>Products</span></a></li>
+        <li><a class="nav-link" href="{% url 'customers' %}" style="color: black"><i class="fa fa-users"></i><span>Customers</span></a></li>
+        <li><a class="nav-link" href="{% url 'invoices' %}" style="color: black"><i class="fa fa-file-invoice"></i><span>Invoices</span></a></li>
+        <li><a class="nav-link text-danger" href="{% url 'logout_page' %}" style="color: black"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
       </ul>
     </div>
   </nav>
