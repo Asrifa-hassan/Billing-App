@@ -19,6 +19,7 @@ from .models import Customer, Product, Cart, CartItem, InvoiceItem
 from decimal import Decimal
 from django.views.decorators.http import require_POST
 from .models import Invoice
+from django.views.decorators.cache import never_cache
 from django.db.models import CharField
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
@@ -92,7 +93,7 @@ def forgot_password(request):
       return redirect('register')
   return render(request, 'forgot_password.html')
 
-
+@never_cache
 @login_required
 def dashboard(request):
     invoices=Invoice.objects.all().count()
