@@ -41,6 +41,14 @@ INSTALLED_APPS = [
     'Billing_App',
 ]
 
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+# Redirect here when login is required
+LOGIN_URL = '/login/'
+
+# Redirect after logout
+LOGOUT_REDIRECT_URL = '/login/'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
