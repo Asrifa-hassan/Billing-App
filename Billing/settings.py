@@ -41,23 +41,15 @@ INSTALLED_APPS = [
     'Billing_App',
 ]
 
-LOGIN_REDIRECT_URL = '/dashboard/'
-
-# Redirect here when login is required
-LOGIN_URL = '/login/'
-
-# Redirect after logout
-LOGOUT_REDIRECT_URL = '/login/'
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'Billing_App.middleware.DisableCacheForAuthUsersMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Billing_App.middleware.DisableBackButtonMiddleware',
 ]
 
 ROOT_URLCONF = 'Billing.urls'

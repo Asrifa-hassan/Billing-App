@@ -1,15 +1,13 @@
 from django.urls import path
 from . import views
-from django.contrib.auth import views as auth_views
-from Billing_App import views
 
 urlpatterns = [
   path('', views.index, name='index'),
-  path('login_page/', auth_views.Login_pageView.as_view(template_name='login.html'), name='login_page'),
-  path('logout_page/', auth_views.Logout_pageView.as_view(), name='logout_page'),
-  path('dashboard/', views.dashboard, name='dashboard'),
+  path('login_page/', views.login_page, name='login_page'),
+  path('logout_page/', views.logout_page, name='logout_page'),
   path('register/', views.register, name='register'),
   path('forgot_password/', views.forgot_password, name='forgot_password'),
+  path('dashboard/', views.dashboard, name='dashboard'),
   path('staff', views.staff, name='staff'),
   path('activate_staff/<int:id>/', views.activate_staff, name='activate_staff'),
   path('add_staff/', views.add_staff, name='add_staff'),
