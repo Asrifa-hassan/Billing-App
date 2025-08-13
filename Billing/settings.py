@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'Billing_App.middleware.DisableBackButtonMiddleware',
+    'Billing_App.middleware.DisableBackButtonAndRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'Billing.urls'
