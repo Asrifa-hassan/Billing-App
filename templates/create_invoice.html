@@ -50,8 +50,8 @@
                             <p><strong>Address:</strong> {{ customer.address }}</p>
                         {% else %}
                             <div class="btn-group mt-3">
-                                <button class="btn btn-primary" onclick="new_customer()">➕ New Customer</button>
-                                <button class="btn btn-info" onclick="existing_customer()">🔍 Existing</button>
+                                <button class="btn btn-primary" onclick="new_customer()" style="background-color: #1d4673;color: white;border: none;margin-left:55px;border-radius: 8px;">➕ New Customer</button>
+                                <button class="btn btn-info" onclick="existing_customer()" style="background-color: #1d4375;color: white;margin-left: 55px;border: none;border-radius: 8px;">🔍 Existing</button>
                             </div>
                         {% endif %}
 
@@ -139,10 +139,11 @@
                                 <option value="card">Card</option>
                                 <option value="wallet">Wallet</option>
                             </select>
-                            <label>🎟️ Discount (%)</label>
-                            <input type="number" id="discount" name="discount" class="form-control mb-2" placeholder="Enter discount" oninput="calculateGrandTotal()">
                             <button class="btn btn-success w-100 mb-3" style="background-color: #1d4876">Record Payment</button>
                         </form>
+
+                        <label>🎟️ Discount (%)</label>
+                        <input type="number" id="discount" class="form-control mb-2" placeholder="Enter discount" oninput="calculateGrandTotal()">
 
                         <div class="border p-3 rounded bg-light mb-3">
                             <p><strong>Total:</strong> ₹{{ cart.total }}</p>
@@ -170,7 +171,6 @@
     </div>
 </div>
 {% endblock %}
-
 {% block script %}
 <script src="{% static 'js/invoice.js' %}"></script>
 <script>
@@ -181,17 +181,20 @@ function calculateGrandTotal() {
     document.getElementById('grandTotal').innerText = discountedTotal.toFixed(2);
 }
 </script>
-
 <script>
-// --- Customer Search ---
+div.href = `/add_to_cart/${product.id}`;
+</script>
+<script>
 const searchinput = document.getElementById('customerSearch');
 const dropdown = document.getElementById('dropdownList');
+
 searchinput.addEventListener('input', function () {
     const query = this.value;
     if (query.length < 1) {
         dropdown.innerHTML = '';
         return;
     }
+
     fetch(`/search_customer?q=${query}`)
         .then(res => res.json())
         .then(data => {
@@ -201,6 +204,8 @@ searchinput.addEventListener('input', function () {
                 div.className = 'list-group-item list-group-item-action';
                 div.textContent = `${customer.fullname} - ${customer.phone}`;
                 div.href = '#';
+
+                // Handle session and redirect
                 div.addEventListener('click', function (e) {
                     e.preventDefault();
                     fetch('/create_invoice/', {
@@ -214,20 +219,30 @@ searchinput.addEventListener('input', function () {
                         window.location.href = '/create_invoice/';
                     });
                 });
+
                 dropdown.appendChild(div);
             });
         });
 });
 
-// --- Product Search ---
+function getCookie(name) {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [key, value] = cookie.trim().split('=');
+        if (key === name) return decodeURIComponent(value);
+    }
+}
 const searchInput = document.getElementById('productSearch');
 const productDropdown = document.getElementById('productDropdown');
+
+// --- Search products ---
 searchInput.addEventListener('input', function () {
     const query = this.value;
     if (query.length < 1) {
         productDropdown.innerHTML = '';
         return;
     }
+
     fetch(`/search_product?q=${query}`)
         .then(res => res.json())
         .then(data => {
@@ -237,6 +252,7 @@ searchInput.addEventListener('input', function () {
                 div.type = 'button';
                 div.className = 'list-group-item list-group-item-action text-start';
                 div.textContent = product.name;
+
                 div.addEventListener('click', function () {
                     fetch(`/add_to_cart/${product.id}/`, {
                         method: 'POST',
@@ -249,12 +265,13 @@ searchInput.addEventListener('input', function () {
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            window.location.reload();
+                            window.location.reload(); // 🔄 Reload invoice page
                         } else {
                             alert(data.message || "Failed to add product.");
                         }
                     });
                 });
+
                 productDropdown.appendChild(div);
             });
         })
@@ -276,8 +293,8 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-
-// --- Toggle ---
+</script>
+<script>
 function existing_customer(){
     document.getElementById("existing-customer-div").style.display = "block";
     document.getElementById("new-customer-div").style.display = "none";
@@ -286,5 +303,6 @@ function new_customer(){
     document.getElementById("new-customer-div").style.display = "block";
     document.getElementById("existing-customer-div").style.display = "none";
 }
+
 </script>
 {% endblock %}

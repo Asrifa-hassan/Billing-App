@@ -52,7 +52,7 @@
                 </select>
             </div>
             <div class="col-md-3 d-grid">
-                <button type="submit" class="btn btn-primary" style="background-color:#1d4876;width: 30%;border: none;">Filter</button>
+                <button type="submit" class="btn btn-primary" style="background-color:#1d4876;width:50%;border: none;">Filter</button>
             </div>
         </form>
     </div>
@@ -95,15 +95,12 @@
                         </td>
                         <td>
                             <a href="{% url 'invoice_view' invoice.id %}" class="btn btn-product btn-sm">View</a>
-                            {% if invoice.amount_paid < invoice.grand_total %}
-                            <form action="{% url 'update_invoice_status' invoice.id %}" method="post" class="d-inline">
+                            <a href="{% url 'edit_invoice' invoice.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="{% url 'delete_invoice' invoice.id %}" method="post" class="d-inline"
+                                  onsubmit="return confirm('Are you sure you want to delete this invoice?');">
                                 {% csrf_token %}
-                                <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
-                                    <option value="pending" selected>Pending</option>
-                                    <option value="paid">Mark as Paid</option>
-                                </select>
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
-                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
