@@ -32,9 +32,8 @@
 <div class="col-lg-10 col-md-9 col-sm-9 page-col">
     <div class="invoice-header">
         <h3 class="fw-bold">📄 Invoice List</h3>
-        <a href="{% url 'create_invoice' %}" class="btn btn-new-bill shadow-sm">Add New</a>
+        <a href="{% url 'create_invoice' %}?new=1" class="btn btn-primary" style="background-color:#1d4876;width:20%;font-size: 15px;border: none;">Add New</a>
     </div>
-
     <!-- Search and Filter -->
     <div class="card shadow-sm border-0 p-3 mb-3 search-card">
         <form method="get" action="{% url 'invoices' %}" class="row g-2 align-items-center">

@@ -1,76 +1,94 @@
 {% extends 'navbar.html' %}
 {% load static %}
 {% block title %}New Invoice{% endblock %}
+
 {% block link %}
 <link rel="stylesheet" href="{% static 'css/product.css' %}">
 <link rel="stylesheet" href="{% static 'css/invoice.css' %}">
 <link rel="stylesheet" href="{% static 'css/index.css' %}">
 <style>
-    .sticky-summary {
-        position: sticky;
-        top: 70px;
-        background: #fff;
-        padding: 15px;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .badge-cart {
-        background: #1d4876;
-        color: white;
-        border-radius: 50%;
-        padding: 4px 10px;
-        font-size: 12px;
-    }
+.sticky-summary {
+    position: sticky;
+    top: 70px;
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.badge-cart {
+    background: #1d4876;
+    color: white;
+    border-radius: 50%;
+    padding: 4px 10px;
+    font-size: 12px;
+}
+.customer-box {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+}
+.cart-table th, .cart-table td {
+    vertical-align: middle;
+}
+#productDropdown .list-group-item {
+    cursor: pointer;
+}
+@media(max-width:991px){
+    .sticky-summary { position: relative; top: auto; margin-top: 20px; }
+    .btn-group .btn { width: 48%; margin-bottom: 10px; }
+}
 </style>
 {% endblock %}
-{% block content %}
 
+{% block content %}
 <div class="col-lg-10 col-md-9 col-sm-9 page-col">
     <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
             <h3 class="fw-bold">🧾 Create New Invoice
-                {% if cart_items %}<span class="badge-cart">{{ cart_items|length }}</span>{% endif %}
+                <span class="badge-cart" id="cartCount">{{ cart_items|length|default:0 }}</span>
             </h3>
-            <a href="{% url 'invoices' %}" class="btn btn-outline-secondary btn-sm"><< Back </a>
+            <a href="{% url 'invoices' %}" class="btn btn-outline-secondary btn-sm mt-2">&laquo; Back</a>
         </div>
 
         <div class="row">
             <!-- Left Column -->
             <div class="col-lg-8">
                 <div class="bg-white new-invoice shadow-sm rounded p-4">
-
                     <!-- Customer Section -->
                     <div class="customer-details mb-4">
                         <h4>👤 Customer Information</h4>
-                        <hr>
-                        {% if customer %}
-                            <p><strong>Name:</strong> {{ customer.fullname }}</p>
-                            <p><strong>Phone:</strong> +91 {{ customer.phone }}</p>
-                            <p><strong>Address:</strong> {{ customer.address }}</p>
-                        {% else %}
-                            <div class="btn-group mt-3">
-                                <button class="btn btn-primary" onclick="new_customer()" style="background-color: #1d4673;color: white;border: none;margin-left:55px;border-radius: 8px;">➕ New Customer</button>
-                                <button class="btn btn-info" onclick="existing_customer()" style="background-color: #1d4375;color: white;margin-left: 55px;border: none;border-radius: 8px;">🔍 Existing</button>
-                            </div>
-                        {% endif %}
+                        <div class="btn-group d-flex justify-content-between mb-3 flex-wrap">
+                            <button type="button" class="btn btn-primary" onclick="new_customer()"style="background-color:#1d4876; border:none; color:white;margin-left:10px;">➕ New Customer</button>
+                            <button type="button" class="btn btn-info" onclick="existing_customer()"style="background-color:#1d4876;border:none; color:white;margin-left:10px;">🔍 Existing Customer</button>
+                        </div>
 
                         <!-- New Customer Form -->
                         <div id="new-customer-div" class="p-3 mt-3 border rounded bg-light" style="display:none;">
-                            <form action="{% url 'new_customer' %}" method="post">
+                            <form id="newCustomerForm" method="post" action="{% url 'create_invoice' %}">
                                 {% csrf_token %}
+                                <input type="hidden" name="action" value="new_customer">
                                 <input type="text" name="fullname" placeholder="Fullname" class="form-control mb-2" required>
-                                <input type="tel" name="phone" class="form-control mb-2" placeholder="Phone" minlength="10" maxlength="10" required>
-                                <textarea name="address" class="form-control mb-2" placeholder="Address"></textarea>
-                                <button class="btn btn-success w-100" style="background-color: #1d4876">💾 Save</button>
+                                <input type="tel" name="phone" placeholder="Phone" minlength="10" maxlength="10" class="form-control mb-2" required>
+                                <textarea name="address" placeholder="Address" class="form-control mb-2"></textarea>
+                                <button type="submit" class="btn btn-success w-100">💾 Save</button>
                             </form>
                         </div>
 
-                        <!-- Existing Customer Search -->
+                        {% if customer %}
+                        <!-- Show selected customer -->
+                        <div class="customer-box mt-3" id="selectedCustomer">
+                            <p><strong>Name:</strong> {{ customer.fullname }}</p>
+                            <p><strong>Phone:</strong> +91 {{ customer.phone }}</p>
+                            <p><strong>Address:</strong> {{ customer.address }}</p>
+                        </div>
+                        {% else %}
+                        <!-- Search existing -->
                         <div id="existing-customer-div" class="p-3 mt-3 border rounded bg-light" style="display:none;">
-                            <input type="text" id="customerSearch" class="form-control" placeholder="Search by phone">
+                            <input type="text" id="customerSearch" class="form-control" placeholder="Search by phone or name">
                             <div id="dropdownList" class="list-group mt-1"></div>
                         </div>
+                        {% endif %}
                     </div>
 
                     <!-- Product Search -->
@@ -81,37 +99,30 @@
                     </div>
 
                     <!-- Cart Items Table -->
-                    <div class="scroll-table mb-4">
-                        <table class="table table-bordered align-middle">
+                    <div class="scroll-table mb-4 table-responsive">
+                        <table class="table table-bordered align-middle cart-table">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th><th>Product</th><th>Qty</th><th>Price</th><th>Sub Total</th>
+                                    <th>#</th>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="product-items">
                                 {% for i in cart_items %}
-                                    <tr>
-                                        <td>
-                                            <form method="post">{% csrf_token %}
-                                                <input type="hidden" name="action" value="remove_product">
-                                                <input type="hidden" name="product_id" value="{{ i.id }}">
-                                                <button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
-                                            </form>
-                                        </td>
-                                        <td>{{ i.product.name }}</td>
-                                        <td>
-                                            <form method="post">{% csrf_token %}
-                                                <input type="hidden" name="action" value="update_quantity">
-                                                <input type="hidden" name="item_id" value="{{ i.id }}">
-                                                <input type="number" name="quantity" class="form-control form-control-sm"
-                                                       value="{{ i.quantity }}" min="1" max="{{ i.product.stock }}" onchange="this.form.submit();">
-                                            </form>
-                                        </td>
-                                        <td>{{ i.product.price }}</td>
-                                        <td>{{ i.sub_total }}</td>
-                                    </tr>
+                                <tr data-item-id="{{ i.id }}">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ i.product.name }}</td>
+                                    <td><input type="number" class="form-control form-control-sm qty-input" value="{{ i.quantity }}" min="1" max="{{ i.product.stock }}"></td>
+                                    <td>₹{{ i.product.price }}</td>
+                                    <td class="subtotal">₹{{ i.subtotal }}</td>
+                                    <td><button class="btn btn-danger btn-sm remove-item-btn"><i class="fa fa-trash"></i></button></td>
+                                </tr>
                                 {% empty %}
-                                    <tr><td colspan="5" class="text-center text-muted">No items added yet.</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted">No items added yet.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -125,184 +136,228 @@
                 </div>
             </div>
 
-            <!-- Right Column (Sticky Summary) -->
+            <!-- Right Column -->
             <div class="col-lg-4">
-                <div class="sticky-summary">
-                    {% if cart %}
-                        <form method="post">{% csrf_token %}
-                            <input type="hidden" name="action" value="payment">
-                            <label>💰 Amount Paid:</label>
-                            <input type="number" step="0.01" name="amount_paid" value="{{ cart.amount_paid }}" class="form-control mb-2">
-                            <label>💳 Payment Method:</label>
-                            <select name="payment_method" class="form-select mb-2">
-                                <option value="cash">Cash</option>
-                                <option value="card">Card</option>
-                                <option value="wallet">Wallet</option>
-                            </select>
-                            <button class="btn btn-success w-100 mb-3" style="background-color: #1d4876">Record Payment</button>
-                        </form>
+                <div class="sticky-summary" id="summaryBox">
+                    <!-- Record Payment -->
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
+                        <label>💰 Amount Paid:</label>
+                        <input type="number" step="0.01" name="amount_paid" value="{{ cart.amount_paid|default:0 }}" class="form-control mb-2">
+                        <label>💳 Payment Method:</label>
+                        <select name="payment_method" class="form-select mb-3">
+                            <option value="cash">Cash</option>
+                            <option value="card">Card</option>
+                            <option value="wallet">Wallet</option>
+                        </select>
+                        <button type="submit" name="action" value="payment" class="btn btn-success w-100" style="background-color:#1d4876">Record Payment</button>
+                    </form>
 
+                    <!-- Apply Discount -->
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
                         <label>🎟️ Discount (%)</label>
-                        <input type="number" id="discount" class="form-control mb-2" placeholder="Enter discount" oninput="calculateGrandTotal()">
+                        <input type="number" name="discount" value="0" class="form-control mb-2" id="discount">
+                        <button type="submit" name="action" value="apply_discount" class="btn btn-primary w-100" style="background-color:#1d4876">Apply Discount</button>
+                    </form>
 
-                        <div class="border p-3 rounded bg-light mb-3">
-                            <p><strong>Total:</strong> ₹{{ cart.total }}</p>
-                            <p><strong>Tax ({{ cart.gst_percentage }}%):</strong> ₹{{ cart.gst }}</p>
-                            <p><strong>Grand Total:</strong> ₹<span id="grandTotal">{{ cart.grand_total }}</span></p>
-                            <p><strong>Due:</strong> ₹{{ due_amount }}</p>
-                            <p><strong>Balance:</strong> ₹{{ balance }}</p>
-                            <p><strong>Wallet:</strong> ₹{{ customer.wallet }}</p>
-                        </div>
+                    <!-- Summary -->
+                    <div class="border p-3 rounded bg-light mb-3">
+                        <p><strong>Total:</strong> ₹{{ cart.total|default:0 }}</p>
+                        <p><strong>Tax ({{ cart.gst_percentage|default:0 }}%):</strong> ₹{{ cart.gst|default:0 }}</p>
+                        <p><strong>Grand Total:</strong> ₹<span id="grand-total">{{ cart.grand_total|default:0 }}</span></p>
+                        <p><strong>Due:</strong> <span id="due-amount">{{ due_amount|default:0 }}</span></p>
+                        <p><strong>Balance:</strong> ₹{{ balance|default:0 }}</p>
+                        {% if customer %}
+                            <p><strong>Wallet:</strong> ₹{{ customer.wallet|default:0 }}</p>
+                        {% endif %}
+                    </div>
 
-                        <div class="d-flex gap-2">
-                            <form method="post" class="flex-fill">{% csrf_token %}
-                                <input type="hidden" name="action" value="clear_invoice">
-                                <button class="btn btn-outline-danger w-100">🧹 Clear</button>
-                            </form>
-                            <form method="post" class="flex-fill">{% csrf_token %}
-                                <input type="hidden" name="action" value="save_invoice">
-                                <button class="btn btn-primary w-100" style="background-color: #1d4876">💾 Save Invoice</button>
-                            </form>
-                        </div>
-                    {% endif %}
+                    <!-- Clear / Save Invoice -->
+                    <form method="post" class="d-flex gap-2 flex-wrap">
+                        {% csrf_token %}
+                        <button type="submit" name="action" value="clear_invoice" class="btn btn-outline-danger w-48 mb-2">🧹 Clear</button>
+                        <button type="submit" name="action" value="save_invoice" class="btn btn-primary w-48 mb-2" style="background-color:#1d4876">💾 Save Invoice</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
 {% block script %}
 <script src="{% static 'js/invoice.js' %}"></script>
 <script>
-function calculateGrandTotal() {
-    let discount = parseFloat(document.getElementById('discount').value || 0);
-    let originalTotal = parseFloat({{ cart.grand_total|default:0 }});
-    let discountedTotal = originalTotal - (originalTotal * (discount / 100));
-    document.getElementById('grandTotal').innerText = discountedTotal.toFixed(2);
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+const productTable = document.getElementById('product-items');
+
+// Customer toggle
+function new_customer() {
+    document.getElementById("new-customer-div").style.display = "block";
+    document.getElementById("existing-customer-div").style.display = "none";
 }
-</script>
-<script>
-div.href = `/add_to_cart/${product.id}`;
-</script>
-<script>
-const searchinput = document.getElementById('customerSearch');
-const dropdown = document.getElementById('dropdownList');
+function existing_customer() {
+    document.getElementById("existing-customer-div").style.display = "block";
+    document.getElementById("new-customer-div").style.display = "none";
+}
 
-searchinput.addEventListener('input', function () {
-    const query = this.value;
-    if (query.length < 1) {
-        dropdown.innerHTML = '';
-        return;
-    }
+// New customer AJAX
+document.getElementById('newCustomerForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // prevent default form submission
 
-    fetch(`/search_customer?q=${query}`)
-        .then(res => res.json())
-        .then(data => {
-            dropdown.innerHTML = '';
-            data.forEach(customer => {
-                const div = document.createElement('a');
-                div.className = 'list-group-item list-group-item-action';
-                div.textContent = `${customer.fullname} - ${customer.phone}`;
-                div.href = '#';
+    const formData = new FormData(this);
 
-                // Handle session and redirect
-                div.addEventListener('click', function (e) {
+    fetch("{% url 'create_invoice' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        },
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        alert("Customer saved successfully!");
+        document.getElementById('new-customer-div').style.display = 'none';
+        // Optionally reload invoice page or update customer dropdown dynamically
+        location.reload();
+    })
+    .catch(err => console.error(err));
+});
+
+// Existing customer search
+const customerSearch = document.getElementById("customerSearch");
+customerSearch?.addEventListener("input", function(){
+    const q = this.value.trim();
+    const dropdown = document.getElementById("dropdownList");
+    if(!q){ dropdown.innerHTML=""; return; }
+    fetch(`/search_customer/?q=${encodeURIComponent(q)}`)
+        .then(r=>r.json())
+        .then(data=>{
+            dropdown.innerHTML="";
+            data.forEach(cust=>{
+                const a = document.createElement("a");
+                a.className = "list-group-item list-group-item-action";
+                a.href="#";
+                a.textContent = `${cust.fullname} - ${cust.phone}`;
+                a.onclick = e=>{
                     e.preventDefault();
-                    fetch('/create_invoice/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken'),
-                        },
-                        body: JSON.stringify({ phone: customer.phone })
-                    }).then(() => {
-                        window.location.href = '/create_invoice/';
-                    });
-                });
-
-                dropdown.appendChild(div);
+                    const fd = new FormData();
+                    fd.append("action","select_customer");
+                    fd.append("phone", cust.phone);
+                    fetch("{% url 'create_invoice' %}", {method:"POST", headers:{"X-CSRFToken": csrftoken}, body:fd})
+                    .then(()=>location.reload());
+                };
+                dropdown.appendChild(a);
             });
         });
 });
 
-function getCookie(name) {
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-        const [key, value] = cookie.trim().split('=');
-        if (key === name) return decodeURIComponent(value);
-    }
-}
-const searchInput = document.getElementById('productSearch');
+// Product Search
+const productSearch = document.getElementById('productSearch');
 const productDropdown = document.getElementById('productDropdown');
-
-// --- Search products ---
-searchInput.addEventListener('input', function () {
-    const query = this.value;
-    if (query.length < 1) {
-        productDropdown.innerHTML = '';
-        return;
-    }
-
-    fetch(`/search_product?q=${query}`)
-        .then(res => res.json())
-        .then(data => {
-            productDropdown.innerHTML = '';
-            data.forEach(product => {
-                const div = document.createElement('button');
-                div.type = 'button';
-                div.className = 'list-group-item list-group-item-action text-start';
-                div.textContent = product.name;
-
-                div.addEventListener('click', function () {
-                    fetch(`/add_to_cart/${product.id}/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken'),
-                        },
-                        body: JSON.stringify({})
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.reload(); // 🔄 Reload invoice page
-                        } else {
-                            alert(data.message || "Failed to add product.");
-                        }
-                    });
-                });
-
-                productDropdown.appendChild(div);
-            });
-        })
-        .catch(err => console.error("Error fetching products:", err));
+productSearch?.addEventListener('input', function(){
+    const q = this.value.trim();
+    if(!q){ productDropdown.innerHTML=""; return; }
+    fetch(`/search_product/?q=${encodeURIComponent(q)}`)
+    .then(res=>res.json())
+    .then(data=>{
+        productDropdown.innerHTML="";
+        data.forEach(p=>{
+            const btn = document.createElement('button');
+            btn.type='button';
+            btn.className='list-group-item list-group-item-action text-start';
+            btn.textContent=p.name;
+            btn.onclick = ()=>{
+                const fd = new FormData();
+                fd.append("action","add_product");
+                fd.append("product_id", p.id);
+                fd.append("quantity",1);
+                fetch("{% url 'create_invoice' %}", {method:"POST", headers:{"X-CSRFToken": csrftoken}, body:fd})
+                .then(()=>location.reload());
+            };
+            productDropdown.appendChild(btn);
+        });
+    });
 });
 
-// --- CSRF helper ---
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.split('=')[1]);
-                break;
+// Quantity change & remove
+productTable?.addEventListener('input', e=>{
+    if(e.target.classList.contains('qty-input')){
+        const tr = e.target.closest('tr');
+        const itemId = tr.dataset.itemId;
+        const qty = parseInt(e.target.value);
+
+        if(qty < 1) return;
+
+        const fd = new FormData();
+        fd.append("action","update_item");
+        fd.append("item_id", itemId);
+        fd.append("quantity", qty);
+
+        fetch("{% url 'create_invoice' %}", {method:"POST", headers:{"X-CSRFToken": csrftoken}, body:fd})
+        .then(r => r.json())
+        .then(data => {
+            if(data.success){
+                tr.querySelector('.subtotal').textContent = "₹" + data.subtotal.toFixed(2);
+                document.getElementById("grand-total").textContent = "₹" + data.grand_total.toFixed(2);
+                document.getElementById("due-amount").textContent = "₹" + data.due_amount.toFixed(2);
+            } else {
+                alert(data.message || "Update failed");
             }
-        }
+        });
     }
-    return cookieValue;
-}
-</script>
-<script>
-function existing_customer(){
-    document.getElementById("existing-customer-div").style.display = "block";
-    document.getElementById("new-customer-div").style.display = "none";
-}
-function new_customer(){
-    document.getElementById("new-customer-div").style.display = "block";
-    document.getElementById("existing-customer-div").style.display = "none";
+});
+
+productTable?.addEventListener('click', e=>{
+    if(e.target.closest('.remove-item-btn')){
+        const tr = e.target.closest('tr');
+        const itemId = tr.dataset.itemId;
+        const fd = new FormData();
+        fd.append("action","update_item");
+        fd.append("item_id", itemId);
+        fd.append("quantity", 0);
+
+        fetch("{% url 'create_invoice' %}", {method:"POST", headers:{"X-CSRFToken": csrftoken}, body:fd})
+        .then(r => r.json())
+        .then(data => {
+            if(data.success){
+                tr.remove();
+                document.getElementById("grand-total").textContent = "₹" + data.grand_total.toFixed(2);
+                document.getElementById("due-amount").textContent = "₹" + data.due_amount.toFixed(2);
+                document.getElementById("cartCount").textContent = data.cart_count;
+            } else {
+                alert(data.message || "Remove failed");
+            }
+        });
+    }
+});
+
+
+// Discount
+document.getElementById("discount")?.addEventListener('input', e=>{
+    const total = parseFloat("{{ cart.total|default:0 }}");
+    const gst = parseFloat("{{ cart.gst|default:0 }}");
+    const discount = parseFloat(e.target.value||0);
+    const grand = (total+gst)*(1-discount/100);
+    document.getElementById("grandTotal").textContent = grand.toFixed(2);
+    document.getElementById("due").textContent = grand.toFixed(2)-parseFloat("{{ cart.amount_paid|default:0 }}");
+});
+
+// Clear Invoice
+function clearInvoice(){
+    const fd = new FormData();
+    fd.append("action","clear_invoice");
+    fetch("{% url 'create_invoice' %}", {method:"POST", headers:{"X-CSRFToken": csrftoken}, body:fd})
+    .then(()=>location.reload());
 }
 
+// Save Invoice
+function saveInvoice(){
+    const fd = new FormData();
+    fd.append("action","save_invoice");
+    fetch("{% url 'create_invoice' %}", {method:"POST", headers:{"X-CSRFToken": csrftoken}, body:fd})
+    .then(()=>location.href="{% url 'invoices' %}");
+}
 </script>
 {% endblock %}
